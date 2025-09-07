@@ -6,7 +6,6 @@ echo: false
 # bibliography: references.bib
 
 ---
+- Learn more [About Me](about.qmd)
 - Explore my [Projects](projects.qmd)
 - Read my [Blogs](blogs.qmd)
-- Learn more [About Me](about.qmd)
-

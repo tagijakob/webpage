@@ -22,6 +22,41 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
 </style>
 
 
@@ -70,6 +105,35 @@ ul.task-list li input[type="checkbox"] {
   }
 }</script>
 
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
 
 <link rel="stylesheet" href="../styles.css">
 <link rel="stylesheet" href="../../styles.css">
@@ -180,9 +244,142 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
+<p>Problem 1<br>
+1a) No<br>
+1b) ??<br>
+1c) ??<br>
+1d)</p>
+<p><strong>Simulation and Analysis:</strong></p>
+<p>To explore the effect of omitting a relevant predictor in a regression model, I simulated data from a known model with two predictors, where the predictors are correlated (as requested in the assignment). The model is:</p>
+<p><span class="math display">\[ Y_i = 1 + 2 X_i + 3 Z_i + e_i \]</span></p>
+<p>where<br>
+&nbsp;&nbsp; - <span class="math inline">\(a = 1\)</span><br>
+&nbsp;&nbsp; - <span class="math inline">\(b = 2\)</span><br>
+&nbsp;&nbsp; - <span class="math inline">\(c = 3\)</span><br>
+&nbsp;&nbsp; - <span class="math inline">\(e_i\)</span> ~ N(0,1) is standard normal noise<br>
+&nbsp;&nbsp; - <span class="math inline">\(X\)</span> and <span class="math inline">\(Z\)</span> are generated to be correlated<br>
+<br></p>
+<p><strong>Simulation Steps:</strong><br>
+- Generate <span class="math inline">\(n\)</span> samples of <span class="math inline">\(X\)</span> from a standard normal distribution.<br>
+- Generate <span class="math inline">\(Z\)</span> as <span class="math inline">\(Z = 0.8 X + 0.6 u\)</span>, where <span class="math inline">\(u\)</span> is standard normal and independent of <span class="math inline">\(X\)</span> (so <span class="math inline">\(X\)</span> and <span class="math inline">\(Z\)</span> are correlated)<br>
+- Generate <span class="math inline">\(Y\)</span> using the model above<br>
+- Fit two regression models:<br>
+&nbsp;&nbsp; 1. Full model: <span class="math inline">\(Y\)</span> on <span class="math inline">\(X\)</span> and <span class="math inline">\(Z\)</span> (both predictors)<br>
+&nbsp;&nbsp; 2. Reduced model: <span class="math inline">\(Y\)</span> on <span class="math inline">\(X\)</span> only (omit <span class="math inline">\(Z\)</span>)<br>
+- Compare the estimated coefficient for <span class="math inline">\(X\)</span> in both models<br>
+- Repeat for different sample sizes</p>
+<div id="d0d886f1" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.linear_model <span class="im">import</span> LinearRegression</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>np.random.seed(<span class="dv">42</span>)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> simulate_and_compare(n<span class="op">=</span><span class="dv">100</span>):</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    a, b, c <span class="op">=</span> <span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    X <span class="op">=</span> np.random.normal(<span class="dv">0</span>, <span class="dv">1</span>, n)</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    u <span class="op">=</span> np.random.normal(<span class="dv">0</span>, <span class="dv">1</span>, n)</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    Z <span class="op">=</span> <span class="fl">0.8</span> <span class="op">*</span> X <span class="op">+</span> <span class="fl">0.6</span> <span class="op">*</span> u  <span class="co"># X and Z are correlated</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>    e <span class="op">=</span> np.random.normal(<span class="dv">0</span>, <span class="dv">1</span>, n)</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    Y <span class="op">=</span> a <span class="op">+</span> b <span class="op">*</span> X <span class="op">+</span> c <span class="op">*</span> Z <span class="op">+</span> e</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Full model</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>    XZ <span class="op">=</span> np.column_stack([X, Z])</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>    model_full <span class="op">=</span> LinearRegression().fit(XZ, Y)</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>    b_hat_full <span class="op">=</span> model_full.coef_[<span class="dv">0</span>]</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>    c_hat_full <span class="op">=</span> model_full.coef_[<span class="dv">1</span>]</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Reduced model (omit Z)</span></span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>    model_reduced <span class="op">=</span> LinearRegression().fit(X.reshape(<span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>), Y)</span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>    b_hat_reduced <span class="op">=</span> model_reduced.coef_[<span class="dv">0</span>]</span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> b_hat_full, c_hat_full, b_hat_reduced</span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a><span class="co"># Try with n=100</span></span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>b_full, c_full, b_reduced <span class="op">=</span> simulate_and_compare(n<span class="op">=</span><span class="dv">100</span>)</span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"n=100: Full model b_hat = </span><span class="sc">{</span>b_full<span class="sc">:.2f}</span><span class="ss">, c_hat = </span><span class="sc">{</span>c_full<span class="sc">:.2f}</span><span class="ss">; Reduced model b_hat = </span><span class="sc">{</span>b_reduced<span class="sc">:.2f}</span><span class="ss">"</span>)</span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a><span class="co"># Try with n=1000</span></span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>b_full2, c_full2, b_reduced2 <span class="op">=</span> simulate_and_compare(n<span class="op">=</span><span class="dv">1000</span>)</span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"n=1000: Full model b_hat = </span><span class="sc">{</span>b_full2<span class="sc">:.2f}</span><span class="ss">, c_hat = </span><span class="sc">{</span>c_full2<span class="sc">:.2f}</span><span class="ss">; Reduced model b_hat = </span><span class="sc">{</span>b_reduced2<span class="sc">:.2f}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>n=100: Full model b_hat = 2.24, c_hat = 2.98; Reduced model b_hat = 4.37
+n=1000: Full model b_hat = 2.00, c_hat = 3.03; Reduced model b_hat = 4.37</code></pre>
+</div>
+</div>
+<p><strong>Discussion:</strong></p>
+<p>When both <span class="math inline">\(X\)</span> and <span class="math inline">\(Z\)</span> are included in the model, the estimated coefficients (<span class="math inline">\(b\)</span> and <span class="math inline">\(c\)</span>) are close to their true values. However, when <span class="math inline">\(Z\)</span> is omitted, the estimated coefficient for <span class="math inline">\(X\)</span> in the reduced model is biased and does not reflect the true value of <span class="math inline">\(b\)</span>. This is due to omitted variable bias, which occurs when a relevant predictor that is correlated with the included predictor is left out of the model. Increasing the sample size reduces the variance of the estimates, but the bias in the reduced model remains. This simulation demonstrates the importance of including all relevant predictors in a regression model, especially when predictors are correlated.</p>
 <section id="problem-2" class="level2">
 <h2 class="anchored" data-anchor-id="problem-2">Problem 2</h2>
-<p>2a. Address the sensitivity to outliers for regression models in general. About half a page to a page in length, no need for more! 2b. Then, use a simulated instance to discuss/illustrate how the presence of outliers can change the estimated parameters for a regression model. Make a special effort to describe clearly how your simulation project was put together.</p>
+<p>2a. Regression models, such as OLS linear regression, are widely used for modeling relationships between variables. But, one of the key limitations of many regression techniques is their sensitivity to outliers and high leverage data points that deviate significantly from the general pattern of the data. Outliers can be: measurement errors, data entry mistakes, or real one time events. Regardless of their origin, outliers can significantly affect the results of regression analysis and reduce explanatory power of the model.</p>
+<p>For example, in case of OLS regression, the model estimates coefficients by minimizing the sum of squared residuals (the differences between observed and predicted values). Because the residuals are squared, large deviations (i.e., outliers and high leverage points) will distort the results. Even a single outlier can pull the regression line toward itself, and distort the estimated relationship between variables. This can lead to biased or misleading coefficient estimates, inflated standard errors, and reduced predictive accuracy.</p>
+<p>The influence of outliers is not limited to the estimated coefficients. Outliers can also affect diagnostic measures such as R-squared, residual plots, and tests for model assumptions (e.g., normality and homoscedasticity of residuals). In some cases, outliers may mask or exaggerate relationships, making it difficult to detect true patterns in the data.</p>
+<p>To address the sensitivity to outliers and high leverage points, analysts should carefully analyze the origination of the points, and decide on proper handling. They can use data transformations, or outlier detection and removal. Ultimately, careful data exploration and understanding of the context are essential for making informed decisions about handling outliers in regression analysis.</p>
+<p>2b.</p>
+<p><strong>Simulation Setup:</strong> - I generated 30 data points following a linear relationship:<br>
+<span class="math display">\[ y_i = 1 + 3x_i + \epsilon_i \]</span></p>
+<p>where<br>
+&nbsp;&nbsp; <span class="math inline">\(x_i\)</span> is drawn from a uniform distribution<br>
+&nbsp;&nbsp; <span class="math inline">\(\epsilon_i\)</span> ~ N(0,1)</p>
+<ul>
+<li>I fit an OLS model to this data to estimate the slope and intercept.</li>
+<li>Next, I introduced 3 outliers by replacing the last three <span class="math inline">\(y\)</span> values with extremely large numbers (e.g., 50, 55, 60)</li>
+<li>I refit the OLS model to the data with outliers and compared the estimated parameters to those from the original data.</li>
+</ul>
+<div id="ddd2bc49" class="cell" data-execution_count="2">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.linear_model <span class="im">import</span> LinearRegression</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Set random seed for reproducibility</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>np.random.seed(<span class="dv">42</span>)</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Generate synthetic data</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>n <span class="op">=</span> <span class="dv">30</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> np.random.uniform(<span class="dv">0</span>, <span class="dv">5</span>, n)</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>y <span class="op">=</span> <span class="dv">1</span> <span class="op">+</span> <span class="dv">3</span> <span class="op">*</span> x <span class="op">+</span> np.random.normal(<span class="dv">0</span>, <span class="dv">1</span>, n)</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>X <span class="op">=</span> x.reshape(<span class="op">-</span><span class="dv">1</span>,<span class="dv">1</span>)</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Fit regression without outliers</span></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>model_clean <span class="op">=</span> LinearRegression()</span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>model_clean.fit(X, y)</span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a><span class="co"># Introduce outliers</span></span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>y_outliers <span class="op">=</span> y.copy()</span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>y_outliers[<span class="op">-</span><span class="dv">3</span>:] <span class="op">=</span> [<span class="op">-</span><span class="dv">20</span>, <span class="op">-</span><span class="dv">25</span>, <span class="op">-</span><span class="dv">30</span>]</span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a><span class="co"># Fit regression with outliers</span></span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>model_outliers <span class="op">=</span> LinearRegression()</span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>model_outliers.fit(X, y_outliers)</span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot</span></span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">8</span>, <span class="dv">5</span>))</span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>plt.scatter(x, y, label<span class="op">=</span><span class="st">"Original Data"</span>)</span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>plt.scatter(x[<span class="op">-</span><span class="dv">3</span>:], y_outliers[<span class="op">-</span><span class="dv">3</span>:], color<span class="op">=</span><span class="st">'red'</span>, label<span class="op">=</span><span class="st">"Outliers"</span>, zorder<span class="op">=</span><span class="dv">5</span>)</span>
+<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a>plt.plot(x, model_clean.predict(x.reshape(<span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>)), label<span class="op">=</span><span class="st">"Fit (No Outliers)"</span>, color<span class="op">=</span><span class="st">'green'</span>)</span>
+<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a>plt.plot(x, model_outliers.predict(x.reshape(<span class="op">-</span><span class="dv">1</span>, <span class="dv">1</span>)), label<span class="op">=</span><span class="st">"Fit (With Outliers)"</span>, color<span class="op">=</span><span class="st">'red'</span>, linestyle<span class="op">=</span><span class="st">'--'</span>)</span>
+<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a>plt.legend()</span>
+<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">"x"</span>)</span>
+<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">"y"</span>)</span>
+<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">"Effect of Outliers on Regression Line"</span>)</span>
+<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a>plt.show()</span>
+<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"No Outliers: Slope = </span><span class="sc">{</span>model_clean<span class="sc">.</span>coef_[<span class="dv">0</span>]<span class="sc">:.2f}</span><span class="ss">, Intercept = </span><span class="sc">{</span>model_clean<span class="sc">.</span>intercept_<span class="sc">:.2f}</span><span class="ss">"</span>)</span>
+<span id="cb3-39"><a href="#cb3-39" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"With Outliers: Slope = </span><span class="sc">{</span>model_outliers<span class="sc">.</span>coef_[<span class="dv">0</span>]<span class="sc">:.2f}</span><span class="ss">, Intercept = </span><span class="sc">{</span>model_outliers<span class="sc">.</span>intercept_<span class="sc">:.2f}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="post1_outliers_files/figure-html/cell-3-output-1.png" width="670" height="449" class="figure-img"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>No Outliers: Slope = 2.72, Intercept = 1.43
+With Outliers: Slope = 3.16, Intercept = -2.79</code></pre>
+</div>
+</div>
+<p><strong>Discussion:</strong></p>
+<p>The plot above shows the regression lines with and without outliers. The presence of just a few extreme outliers shifts the regression line, resulting in a steeper slope and much higher intercept. The printed coefficients quantify this effect, with The original (without outliers) regression results are closer to the true coefficients, while the model with outliers deviating from true coefficients significantly. This simulation demonstrates how sensitive OLS regression is to outliers and highlights the importance of detecting and addressing outliers in real-world data analysis.</p>
 
 
 </section>

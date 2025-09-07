@@ -25,5 +25,8 @@ description: "Quick reference for common Quarto commands."
   ```sh
   quarto --version
   ```
+- **To convert to docx:**
+  ```sh
+  quarto render yc_publish.ipynb --to docx 
+  ```
 
-_Add more commands as needed!_

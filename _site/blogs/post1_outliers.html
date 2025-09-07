@@ -257,7 +257,7 @@ window.Quarto = {
 &nbsp;&nbsp; - <span class="math inline">\(b = 2\)</span><br>
 &nbsp;&nbsp; - <span class="math inline">\(c = 3\)</span><br>
 &nbsp;&nbsp; - <span class="math inline">\(e_i\)</span> ~ N(0,1) is standard normal noise<br>
-&nbsp;&nbsp; - <span class="math inline">\(X\)</span> and <span class="math inline">\(Z\)</span> are generated to be correlated<br>
+&nbsp;&nbsp; -<span class="math inline">\(X\)</span> and <span class="math inline">\(Z\)</span> are generated to be correlated<br>
 <br></p>
 <p><strong>Simulation Steps:</strong><br>
 - Generate <span class="math inline">\(n\)</span> samples of <span class="math inline">\(X\)</span> from a standard normal distribution.<br>
@@ -268,7 +268,7 @@ window.Quarto = {
 &nbsp;&nbsp; 2. Reduced model: <span class="math inline">\(Y\)</span> on <span class="math inline">\(X\)</span> only (omit <span class="math inline">\(Z\)</span>)<br>
 - Compare the estimated coefficient for <span class="math inline">\(X\)</span> in both models<br>
 - Repeat for different sample sizes</p>
-<div id="d0d886f1" class="cell" data-execution_count="1">
+<div id="c26ad152" class="cell" data-execution_count="1">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.linear_model <span class="im">import</span> LinearRegression</span>
@@ -326,7 +326,7 @@ n=1000: Full model b_hat = 2.00, c_hat = 3.03; Reduced model b_hat = 4.37</code>
 <li>Next, I introduced 3 outliers by replacing the last three <span class="math inline">\(y\)</span> values with extremely large numbers (e.g., 50, 55, 60)</li>
 <li>I refit the OLS model to the data with outliers and compared the estimated parameters to those from the original data.</li>
 </ul>
-<div id="ddd2bc49" class="cell" data-execution_count="2">
+<div id="0c3433a4" class="cell" data-execution_count="2">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.linear_model <span class="im">import</span> LinearRegression</span>

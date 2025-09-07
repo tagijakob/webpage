@@ -30,7 +30,7 @@ where
 &nbsp;&nbsp; - $b = 2$  
 &nbsp;&nbsp; - $c = 3$  
 &nbsp;&nbsp; - $e_i$ ~ N(0,1) is standard normal noise  
-&nbsp;&nbsp; - $X$ and $Z$ are generated to be correlated  
+&nbsp;&nbsp; -$X$ and $Z$ are generated to be correlated  
 <br>
 
 **Simulation Steps:**  

@@ -1,0 +1,29 @@
+---
+title: "Quarto CLI Cheatsheet"
+description: "Quick reference for common Quarto commands."
+---
+
+## Quarto Command Line Cheatsheet
+
+- **Render the entire site:**
+  ```sh
+  quarto render
+  ```
+- **Preview the site locally (live reload):**
+  ```sh
+  quarto preview
+  ```
+- **Render a single file:**
+  ```sh
+  quarto render path/to/file.qmd
+  ```
+- **Publish to GitHub Pages:**
+  ```sh
+  quarto publish gh-pages
+  ```
+- **Check Quarto version:**
+  ```sh
+  quarto --version
+  ```
+
+_Add more commands as needed!_

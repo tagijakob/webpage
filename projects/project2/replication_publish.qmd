@@ -1,0 +1,67 @@
+---
+author: Taguhi Hakobyan
+title: "Replicating: (Sagaceta Mejía et al., 2024)"
+project:
+  type: website
+
+website:
+  title: "today"
+  navbar:
+    left:
+      - href: index.qmd
+        text: Home
+      - about.qmd
+
+format:
+  html:
+    theme: cosmo
+    css: ../../styles.css
+    toc: true
+    
+jupyter: python3
+---
+
+## Replicating: "An Intelligent Approach for Predicting Stock Market Movements in Emerging Markets Using Optimized Technical Indicators and Neural Networks" (Sagaceta Mejía et al., 2024)
+
+**Summary**: In this Notebook I aim to replicate the methodology and the results of the paper:
+> Sagaceta Mejía, R. A., Sánchez Gutiérrez, E. M., & Fresán Figueroa, A. J. "An Intelligent Approach for Predicting Stock Market Movements in Emerging Markets Using Optimized Technical Indicators and Neural Networks." *Economics*, vol. 18, no. 1, 2024.
+
+**Overview**
+The objective of the replication is to pick one of the three funds (**ECH**,**EWZ** or **IVV**) analyzed in the paper (Sagaceta Mejía et al., 2024), get same set of features from yahoo finance, and technical analysis indicators from Pandas TA library. The predictive variable class assignment and data normalization follow same logic as in the paper. I take the same time horizon discussed in the paper.
+
+<br>
+Below you will find all the descriptions
+
+
+
+
+##### Predictive Variable
+1. Class assignment: gamma function for classification, 0 for negative, 1 for positive
+
+##### Features:
+1. Pandas Technical Analysis Library (Pandas TA) to get 210 features
+2. Take 6 features from yahoo finance: Open, High, Low, Close, Adjusted Close, and Volume
+
+
+##### Data preprocessing
+1. Data normalization: min/max normalization, replace min = 0, max = 1
+2. Data cleaning: drop each day (row) containting NaN values
+
+##### Statistical Measures for Feature Selection*:
+1. Low Variance
+2. Chi-Squared (Chi2)
+3. Least Absolute Shrinkage and Selection Operator (LASSO)
+4. Tree-based Feature Selection
+5. Pearson’s Correlation
+6. Principal Feature Analysis
+7. Mean Absolute Difference (MAD)
+8. Dispersion Ratio (DR)
+
+##### Methodology
+1. MLP for Predictive Analysis
+
+
+
+### 1.1  Methodology replication for a fund
+
+

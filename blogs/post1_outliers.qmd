@@ -1,0 +1,22 @@
+---
+title: "Outliers"
+author: Taguhi Hakobyan
+date: "2025-09-07"
+categories: [blog]
+
+format:
+  html:
+    theme: cosmo
+    css: ../../styles.css
+    toc: true
+    toc-location: left
+    
+jupyter: python3
+---
+
+## Problem 2
+2a. Address the sensitivity to outliers for regression models in general. About half a
+page to a page in length, no need for more!
+2b. Then, use a simulated instance to discuss/illustrate how the presence of outliers
+can change the estimated parameters for a regression model. Make a special
+effort to describe clearly how your simulation project was put together.

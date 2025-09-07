@@ -1,0 +1,5 @@
+---
+title: "About Me"
+---
+
+An accomplished Quantitative Developer, Model Developer, and Python Programmer with over 10 years of experience in the financial sector and macroeconomic research. Motivated and results-focused with a proven track record of developing time series econometric models and implementing solutions to support complex financial strategies. Expertise in data wrangling, feature engineering, and statistical modelling, coupled with a strong foundation in algorithmics, data structures, and finance. A strategic thinker who excels in deriving actionable insights from large datasets and solving challenging problems with a research-oriented approach.

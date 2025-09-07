@@ -1,0 +1,5 @@
+---
+title: "Blogs"
+---
+
+1. [Outliers](blogs/post1_outliers.qmd)

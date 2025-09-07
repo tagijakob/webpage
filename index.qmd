@@ -1,0 +1,12 @@
+---
+author: Taguhi Hakobyan
+title: "Welcome to My Portfolio"
+date: "2025-08-04"
+echo: false
+# bibliography: references.bib
+
+---
+- Explore my [Projects](projects.qmd)
+- Read my [Blogs](blogs.qmd)
+- Learn more [About Me](about.qmd)
+

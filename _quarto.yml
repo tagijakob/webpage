@@ -1,0 +1,31 @@
+project:
+  type: website
+  output-dir: _site
+
+website:
+  title: "My Portfolio"
+  description: "Showcasing projects and insights"
+  site-url: "https://taguhihakobyan.com"   
+  navbar:
+    left:
+      - href: index.qmd
+        text: Home
+      - href: about.qmd
+        text: About
+      - href: projects.qmd
+        text: Projects
+      - text: Blog
+        href: blogs/
+
+    right:
+      - icon: github
+        href: https://github.com/tagijakob
+      - icon: linkedin
+        href: https://www.linkedin.com/in/taguhi-hakobyan/
+
+format:
+  html:
+    theme: cosmo
+    css: styles.css
+    toc: true
+    toc-location: left

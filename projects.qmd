@@ -1,0 +1,8 @@
+---
+title: "Projects"
+---
+
+Here are some of my recent works:
+
+1. [Yield Curve Modelling](projects/project1/yc_publish.qmd)
+2. [Replication](projects/project2/replication_publish.qmd)

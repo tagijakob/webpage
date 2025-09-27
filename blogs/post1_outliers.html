@@ -287,7 +287,7 @@ In attached .ipynb, I did the following steps:</p>
 </li>
 <li>Repeated for different sample sizes (100 vs 1000)</li>
 </ul>
-<div id="70944e03" class="cell" data-execution_count="1">
+<div id="3a514e54" class="cell" data-execution_count="1">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.linear_model <span class="im">import</span> LinearRegression</span>
@@ -345,7 +345,7 @@ n=1000: Full model b_hat = 2.00, c_hat = 3.03; Reduced model b_hat = 4.37</code>
 <li><span class="math inline">\(\epsilon_i\)</span> ~ N(0,1)</li>
 </ul>
 <p>In attached .ipynb, I did the following steps: - I generated 30 data points for <span class="math inline">\(x\)</span> and <span class="math inline">\(\epsilon_i\)</span> - I fitted an OLS model to this data to estimate the slope and intercept. - Next, I introduced 3 outliers by replacing the last three <span class="math inline">\(y\)</span> values with outliers (e.g., -20, 25, -30) - I refitted the OLS model to the data with outliers and compared the estimated parameters to those from the original data.</p>
-<div id="25f12911" class="cell" data-execution_count="2">
+<div id="82b4da80" class="cell" data-execution_count="2">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.linear_model <span class="im">import</span> LinearRegression</span>
@@ -476,7 +476,7 @@ With Outliers: Slope = 3.16, Intercept = -2.79</code></pre>
     }
       var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
       var mailtoRegex = new RegExp(/^mailto:/);
-        var filterRegex = new RegExp("https:\/\/taguhihakobyan\.com");
+        var filterRegex = new RegExp("https:\/\/tagijakob\.github\.io\/webpage\/");
       var isInternal = (href) => {
           return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
       }

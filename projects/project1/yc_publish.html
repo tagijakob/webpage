@@ -232,7 +232,7 @@ window.Quarto = {
 
 <p><strong>Yield Curve Construction for France</strong> : To constuct Constant Maturity Treasury (CMT) yield curve data from France has been used.</p>
 <p>The CMT yield curve similar to U.S. Treasury yields are calculated on daily basis and the dataset is accessable here: (Banque de France, n.d., https://webstat.banque-france.fr/en/catalogue/fm/). For the purpose of this exercise the 45 series of data has been downloaded, cleaned and reshaped.</p>
-<div id="5304a7ad" class="cell" data-execution_count="2">
+<div id="271ce595" class="cell" data-execution_count="2">
 <div class="cell-output cell-output-display" data-execution_count="2">
 <div>
 
@@ -328,7 +328,7 @@ window.Quarto = {
 <section id="b.-be-sure-to-pick-maturities-ranging-from-short-term-to-long-term-e.g.-6-month-maturity-to-20-or-30-year-maturities." class="level4">
 <h4 class="anchored" data-anchor-id="b.-be-sure-to-pick-maturities-ranging-from-short-term-to-long-term-e.g.-6-month-maturity-to-20-or-30-year-maturities.">b. Be sure to pick maturities ranging from short-term to long-term (e.g.&nbsp;6 month maturity to 20 or 30 year maturities).</h4>
 <p>After cleaning, we see that data starts from 2024-11-01. It’s a daily data. Unfortunatelly we don’t have shorter maturity data. e.g.&nbsp;for 3 Month and 6 Month. The yields are expressed as percentages. For example, the “1 Year” yield is at <span class="math inline">\(0.834\)</span>, which means <span class="math inline">\(0.834\%\)</span> or <span class="math inline">\(0.00834\)</span>, and the precision with which the yields are presented is one basis point (<span class="math inline">\(0.01\%\)</span>).</p>
-<div id="06e4f86c" class="cell" data-execution_count="3">
+<div id="43a5f7be" class="cell" data-execution_count="3">
 <div class="cell-output cell-output-display" data-execution_count="3">
 <div>
 
@@ -422,7 +422,7 @@ window.Quarto = {
 </div>
 </div>
 <p>As shown below, some maturities such as the 2 Year, 5 Year, and 10 Year don’t have missing data at all. Others, such as 25 and 30 Year have the highest amound of missing data.</p>
-<div id="d198d36b" class="cell" data-execution_count="4">
+<div id="b19b4996" class="cell" data-execution_count="4">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>yields.isna().<span class="bu">sum</span>(axis <span class="op">=</span> <span class="dv">0</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="4">
 <pre><code>1 Year     246
@@ -439,7 +439,7 @@ dtype: int64</code></pre>
 </div>
 </div>
 <p>The below dataframe contains one row of our dataset: all the CMT yields at a specific date. Very interestingly if you query data during Covid, you will see negative yields, which although theoritically possible is extremelly rare in practice</p>
-<div id="6de62ce4" class="cell" data-execution_count="5">
+<div id="14614502" class="cell" data-execution_count="5">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>yields.index <span class="op">=</span> pd.to_datetime(yields.index)</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>yields.loc[<span class="st">'2020-01-03'</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="5">
@@ -456,7 +456,7 @@ dtype: int64</code></pre>
 Name: 2020-01-03 00:00:00, dtype: float64</code></pre>
 </div>
 </div>
-<div id="b1a55a74" class="cell" data-execution_count="6">
+<div id="d503ce7e" class="cell" data-execution_count="6">
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> plot_yield_curve(date, fig_n):</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    maturities <span class="op">=</span> [<span class="st">'1Y'</span>, <span class="st">'2Y'</span>, <span class="st">'3Y'</span>, <span class="st">'5Y'</span>, <span class="st">'7Y'</span>, <span class="st">'10Y'</span>,<span class="st">'15Y'</span>, <span class="st">'20Y'</span>, <span class="st">'25Y'</span>, <span class="st">'30Y'</span>] <span class="co"># Maturities</span></span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">12</span>, <span class="dv">6</span>))</span>
@@ -480,7 +480,7 @@ Name: 2020-01-03 00:00:00, dtype: float64</code></pre>
 <span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>plot_yield_curve(<span class="st">'2020-01-03'</span>,<span class="st">'Yield Curve 2020-01-03, '</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
-<pre><code>/var/folders/4_/vvj1vs2949scv3w1y1xlkcb00000gn/T/ipykernel_6465/180653208.py:6: UserWarning: set_ticklabels() should only be used with a fixed number of ticks, i.e. after set_ticks() or using a FixedLocator.
+<pre><code>/var/folders/4_/vvj1vs2949scv3w1y1xlkcb00000gn/T/ipykernel_11100/180653208.py:6: UserWarning: set_ticklabels() should only be used with a fixed number of ticks, i.e. after set_ticks() or using a FixedLocator.
   ax.set_yticklabels(['{:.2f}%'.format(y) for y in ax.get_yticks()])</code></pre>
 </div>
 <div class="cell-output cell-output-display">
@@ -497,7 +497,7 @@ Name: 2020-01-03 00:00:00, dtype: float64</code></pre>
 <p>The <strong>Nelson Siegel model (NS model)</strong> or <strong>yield curve factor model</strong> is a popular polynomial fitting model for describing the relationship between maturity and yield. Here is the formula for the model:</p>
 <p><span class="math display">\[y(t)=\beta_{0}+\beta_{1}\left( \frac{1-e^{-\lambda t}}{\lambda t} \right)+\beta_{2}\left( \frac{1-e^{^{-\lambda t}}}{\lambda t}-e^{-\lambda t} \right)+\epsilon\]</span> <br> where - <span class="math inline">\(t\)</span>: time to maturity - 0 &lt; <span class="math inline">\(\lambda\)</span> &lt; 1: decay rate (speed to converge to the long-term average) - <span class="math inline">\(\beta_{0}\)</span> : level of the yield curve - <span class="math inline">\(\beta_{1}\)</span> : slope of the yield curve - <span class="math inline">\(\beta_{2}\)</span> : shape of the yield curve <br></p>
 <p>Let’s choose Yield Curves as of 2010-01-04 and 2020-01-03 to fit Nelson-Siegel model</p>
-<div id="36b7ff6a" class="cell" data-execution_count="8">
+<div id="8cc74d29" class="cell" data-execution_count="8">
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Fit an NS model for yields from 2020-01-03</span></span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Create maturity and yield variables in array form</span></span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>t <span class="op">=</span> np.array([<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span>,<span class="dv">5</span>,<span class="dv">7</span>,<span class="dv">10</span>,<span class="dv">15</span>,<span class="dv">20</span>,<span class="dv">25</span>, <span class="dv">30</span>])</span>
@@ -510,7 +510,7 @@ Name: 2020-01-03 00:00:00, dtype: float64</code></pre>
 <pre><code>NelsonSiegelCurve(beta0=np.float64(1.3224296753612468), beta1=np.float64(-1.9398598519040116), beta2=np.float64(-2.3208249771618323), tau=np.float64(3.740272238971495))</code></pre>
 </div>
 </div>
-<div id="ff0e3c06" class="cell" data-execution_count="9">
+<div id="9179facd" class="cell" data-execution_count="9">
 <div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>y_hat <span class="op">=</span> curve</span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>t_hat <span class="op">=</span> np.linspace(<span class="fl">0.5</span>,<span class="dv">30</span>,<span class="dv">100</span>)</span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>plt.plot(t_hat, y_hat(t_hat))</span>
@@ -528,10 +528,10 @@ Name: 2020-01-03 00:00:00, dtype: float64</code></pre>
 </div>
 </div>
 </div>
-<div id="c6e93e8a" class="cell" data-execution_count="10">
+<div id="30be643c" class="cell" data-execution_count="10">
 <div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>plot_yield_curve(<span class="st">'2020-01-03'</span>,<span class="st">''</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
-<pre><code>/var/folders/4_/vvj1vs2949scv3w1y1xlkcb00000gn/T/ipykernel_6465/180653208.py:6: UserWarning: set_ticklabels() should only be used with a fixed number of ticks, i.e. after set_ticks() or using a FixedLocator.
+<pre><code>/var/folders/4_/vvj1vs2949scv3w1y1xlkcb00000gn/T/ipykernel_11100/180653208.py:6: UserWarning: set_ticklabels() should only be used with a fixed number of ticks, i.e. after set_ticks() or using a FixedLocator.
   ax.set_yticklabels(['{:.2f}%'.format(y) for y in ax.get_yticks()])</code></pre>
 </div>
 <div class="cell-output cell-output-display">
@@ -542,7 +542,7 @@ Name: 2020-01-03 00:00:00, dtype: float64</code></pre>
 </div>
 </div>
 </div>
-<div id="e0f07f7a" class="cell" data-execution_count="11">
+<div id="ea59cb56" class="cell" data-execution_count="11">
 <div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>t <span class="op">=</span> np.array([<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span>,<span class="dv">5</span>,<span class="dv">7</span>,<span class="dv">10</span>,<span class="dv">15</span>,<span class="dv">20</span>,<span class="dv">25</span>, <span class="dv">30</span>])</span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>y <span class="op">=</span> np.array(yields.loc[<span class="st">"2020-01-03"</span>])</span>
 <span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -563,10 +563,10 @@ Name: 2020-01-03 00:00:00, dtype: float64</code></pre>
 </div>
 </div>
 </div>
-<div id="3c7640db" class="cell" data-execution_count="12">
+<div id="60ae84a0" class="cell" data-execution_count="12">
 <div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>plot_yield_curve(<span class="st">'2010-01-04'</span>,<span class="st">''</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
-<pre><code>/var/folders/4_/vvj1vs2949scv3w1y1xlkcb00000gn/T/ipykernel_6465/180653208.py:6: UserWarning: set_ticklabels() should only be used with a fixed number of ticks, i.e. after set_ticks() or using a FixedLocator.
+<pre><code>/var/folders/4_/vvj1vs2949scv3w1y1xlkcb00000gn/T/ipykernel_11100/180653208.py:6: UserWarning: set_ticklabels() should only be used with a fixed number of ticks, i.e. after set_ticks() or using a FixedLocator.
   ax.set_yticklabels(['{:.2f}%'.format(y) for y in ax.get_yticks()])</code></pre>
 </div>
 <div class="cell-output cell-output-display">
@@ -581,7 +581,7 @@ Name: 2020-01-03 00:00:00, dtype: float64</code></pre>
 <section id="d.-fit-a-cubic-spline-model." class="level4">
 <h4 class="anchored" data-anchor-id="d.-fit-a-cubic-spline-model.">d.&nbsp;Fit a Cubic-Spline model.</h4>
 <p>I will go ahead and implement Cubic-Spline model for 2 yield curves as before for 2010-01-04 and 2020-01-03. For that reason we need to construct the cubic sqpline equations. let’s query the yield curve data, then we will calculate the coefficients.</p>
-<div id="4f548df8" class="cell" data-execution_count="13">
+<div id="d6d715fc" class="cell" data-execution_count="13">
 <div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>yields.loc[<span class="st">"2010-01-04"</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="13">
 <pre><code>1 Year     0.834
@@ -612,7 +612,7 @@ Name: 2010-01-04 00:00:00, dtype: float64</code></pre>
 <p><span class="math display">\[6a_{8}(25)+2b_{8}=6a_{9}(25)+2b_{9}\;\;\;(10)\]</span></p>
 <p>The boundary conditions(the cubic splines at the end points to be zeroes) will give us 2 equations. <span class="math display">\[6a_{1}(1)+2b_{1}=0\;\;\;\]</span> <span class="math display">\[6a_{9}(30)+2b_{9}=0\;\;\;\]</span></p>
 <p>We could create the matrix and calculate it similar way as in lecture, but instead we will use already implemented CubicSpline from scipy.</p>
-<div id="c62bce55" class="cell" data-execution_count="14">
+<div id="97eea943" class="cell" data-execution_count="14">
 <div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> scipy.interpolate <span class="im">import</span> CubicSpline</span>
 <span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Maturities in years</span></span>
@@ -645,7 +645,7 @@ Name: 2010-01-04 00:00:00, dtype: float64</code></pre>
 </div>
 </div>
 </div>
-<div id="2fa30236" class="cell" data-execution_count="15">
+<div id="8dcc14ae" class="cell" data-execution_count="15">
 <div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>yields.loc[<span class="st">"2020-01-03"</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="15">
 <pre><code>1 Year    -0.624
@@ -661,7 +661,7 @@ Name: 2010-01-04 00:00:00, dtype: float64</code></pre>
 Name: 2020-01-03 00:00:00, dtype: float64</code></pre>
 </div>
 </div>
-<div id="f12cb64e" class="cell" data-execution_count="16">
+<div id="61f21660" class="cell" data-execution_count="16">
 <div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Maturities in years</span></span>
 <span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> np.array([<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>, <span class="dv">5</span>, <span class="dv">7</span>, <span class="dv">10</span>, <span class="dv">15</span>, <span class="dv">20</span>, <span class="dv">25</span>, <span class="dv">30</span>])</span>
 <span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Corresponding yields for 2020-01-03</span></span>
@@ -802,7 +802,7 @@ Name: 2020-01-03 00:00:00, dtype: float64</code></pre>
     }
       var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
       var mailtoRegex = new RegExp(/^mailto:/);
-        var filterRegex = new RegExp("https:\/\/taguhihakobyan\.com");
+        var filterRegex = new RegExp("https:\/\/tagijakob\.github\.io\/webpage\/");
       var isInternal = (href) => {
           return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
       }

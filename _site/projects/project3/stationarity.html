@@ -234,7 +234,7 @@ window.Quarto = {
 This study utilizes two key financial time series from 2005 to 2025:</p>
 <p><strong>Gold Futures (GC=F)</strong>: This represents the front-month gold futures contract traded on the COMEX exchange (CME Group). It is a widely used proxy for gold prices in institutional and academic research. Gold futures reflect market expectations about the value of gold, incorporating information about inflation, interest rates, and geopolitical risk. As a highly liquid and actively traded instrument, GC=F is well-suited for econometric modeling, including time series analysis and cointegration tests.</p>
 <p><strong>U.S. Dollar Index Futures (DX-Y.NYB)</strong>: This ticker represents the U.S. Dollar Index futures contract traded on the New York Board of Trade (NYBOT), now part of the Intercontinental Exchange (ICE). It measures the value of the U.S. dollar against a basket of six major currencies (EUR, JPY, GBP, CAD, SEK, CHF). As a futures contract, DX-Y.NYB is forward-looking and reflects investor expectations about the strength of the dollar in global markets.</p>
-<div id="2d51a570" class="cell" data-execution_count="1">
+<div id="2852890c" class="cell" data-execution_count="1">
 <div class="cell-output cell-output-stdout">
 <pre><code>Using GOLD ticker: GC=F, DXY ticker: DX-Y.NYB</code></pre>
 </div>
@@ -288,36 +288,36 @@ This study utilizes two key financial time series from 2005 to 2025:</p>
 </div>
 </div>
 <p><strong>Tests Results Overview</strong></p>
-<div id="9fa91f36" class="cell" data-execution_count="2">
+<div id="3f8c7efd" class="cell" data-execution_count="2">
 <div class="cell-output cell-output-stderr">
-<pre><code>/var/folders/4_/vvj1vs2949scv3w1y1xlkcb00000gn/T/ipykernel_99349/4242170885.py:74: InterpolationWarning: The test statistic is outside of the range of p-values available in the
+<pre><code>/var/folders/4_/vvj1vs2949scv3w1y1xlkcb00000gn/T/ipykernel_10106/4242170885.py:74: InterpolationWarning: The test statistic is outside of the range of p-values available in the
 look-up table. The actual p-value is smaller than the p-value returned.
 
   stat, pvalue, lags, crit = kpss(x, regression=regression, nlags="auto")
-/var/folders/4_/vvj1vs2949scv3w1y1xlkcb00000gn/T/ipykernel_99349/4242170885.py:74: InterpolationWarning: The test statistic is outside of the range of p-values available in the
+/var/folders/4_/vvj1vs2949scv3w1y1xlkcb00000gn/T/ipykernel_10106/4242170885.py:74: InterpolationWarning: The test statistic is outside of the range of p-values available in the
 look-up table. The actual p-value is smaller than the p-value returned.
 
   stat, pvalue, lags, crit = kpss(x, regression=regression, nlags="auto")
-/var/folders/4_/vvj1vs2949scv3w1y1xlkcb00000gn/T/ipykernel_99349/4242170885.py:74: InterpolationWarning: The test statistic is outside of the range of p-values available in the
+/var/folders/4_/vvj1vs2949scv3w1y1xlkcb00000gn/T/ipykernel_10106/4242170885.py:74: InterpolationWarning: The test statistic is outside of the range of p-values available in the
 look-up table. The actual p-value is smaller than the p-value returned.
 
   stat, pvalue, lags, crit = kpss(x, regression=regression, nlags="auto")
-/var/folders/4_/vvj1vs2949scv3w1y1xlkcb00000gn/T/ipykernel_99349/4242170885.py:74: InterpolationWarning: The test statistic is outside of the range of p-values available in the
+/var/folders/4_/vvj1vs2949scv3w1y1xlkcb00000gn/T/ipykernel_10106/4242170885.py:74: InterpolationWarning: The test statistic is outside of the range of p-values available in the
 look-up table. The actual p-value is smaller than the p-value returned.
 
   stat, pvalue, lags, crit = kpss(x, regression=regression, nlags="auto")
-/var/folders/4_/vvj1vs2949scv3w1y1xlkcb00000gn/T/ipykernel_99349/4242170885.py:74: InterpolationWarning: The test statistic is outside of the range of p-values available in the
+/var/folders/4_/vvj1vs2949scv3w1y1xlkcb00000gn/T/ipykernel_10106/4242170885.py:74: InterpolationWarning: The test statistic is outside of the range of p-values available in the
 look-up table. The actual p-value is greater than the p-value returned.
 
   stat, pvalue, lags, crit = kpss(x, regression=regression, nlags="auto")
-/var/folders/4_/vvj1vs2949scv3w1y1xlkcb00000gn/T/ipykernel_99349/4242170885.py:74: InterpolationWarning: The test statistic is outside of the range of p-values available in the
+/var/folders/4_/vvj1vs2949scv3w1y1xlkcb00000gn/T/ipykernel_10106/4242170885.py:74: InterpolationWarning: The test statistic is outside of the range of p-values available in the
 look-up table. The actual p-value is greater than the p-value returned.
 
   stat, pvalue, lags, crit = kpss(x, regression=regression, nlags="auto")</code></pre>
 </div>
 </div>
 <p>We collected daily adjusted prices from 2005–2025, calculated their logarithms, and computed first differences to obtain daily returns.</p>
-<div id="19264b76" class="cell" data-execution_count="3">
+<div id="51d34839" class="cell" data-execution_count="3">
 <div class="cell-output cell-output-display" data-execution_count="3">
 <div>
 
@@ -382,7 +382,7 @@ look-up table. The actual p-value is greater than the p-value returned.
 <p>Based on the results of the stationarity tests presented in the table, both series are I(1): non-stationary in levels, stationary in first differences.</p>
 <p><strong>Cointegration Tests</strong><br>
 Engle–Granger cointegration result table</p>
-<div id="989726e6" class="cell" data-execution_count="4">
+<div id="c67142a3" class="cell" data-execution_count="4">
 <div class="cell-output cell-output-display" data-execution_count="4">
 <div>
 
@@ -416,7 +416,7 @@ Test Statistic = -1.635
 
 p-value = 0.706 → fail to reject H₀: no cointegration -->
 <p>Johansen (Trace Test):</p>
-<div id="b5af2939" class="cell" data-execution_count="5">
+<div id="343a56c2" class="cell" data-execution_count="5">
 <div class="cell-output cell-output-display" data-execution_count="5">
 <div>
 
@@ -459,7 +459,7 @@ p-value = 0.706 → fail to reject H₀: no cointegration -->
 <section id="diagram" class="level2" data-number="1.4">
 <h2 data-number="1.4" class="anchored" data-anchor-id="diagram"><span class="header-section-number">1.4</span> Diagram</h2>
 <p>Gold and USD Index (log-levels)</p>
-<div id="0310a38d" class="cell" data-execution_count="6">
+<div id="9fa3ffc1" class="cell" data-execution_count="6">
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -469,7 +469,7 @@ p-value = 0.706 → fail to reject H₀: no cointegration -->
 </div>
 </div>
 <p>Cointegration Residual (non-stationary)</p>
-<div id="7fdd73db" class="cell" data-execution_count="7">
+<div id="52339042" class="cell" data-execution_count="7">
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -479,7 +479,7 @@ p-value = 0.706 → fail to reject H₀: no cointegration -->
 </div>
 </div>
 <p>126-day Rolling Correlation (Δlog_gold vs Δlog_dxy)</p>
-<div id="123629bb" class="cell" data-execution_count="8">
+<div id="43f08709" class="cell" data-execution_count="8">
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -489,7 +489,7 @@ p-value = 0.706 → fail to reject H₀: no cointegration -->
 </div>
 </div>
 <p>Impulse Response Functions from VAR on Δlog_gold and Δlog_dxy</p>
-<div id="eb07a95c" class="cell" data-execution_count="9">
+<div id="50790b2c" class="cell" data-execution_count="9">
 <div class="cell-output cell-output-stderr">
 <pre><code>/Users/taguhi/opt/anaconda3/envs/py311env/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
   self._init_dates(dates, freq)
@@ -528,7 +528,7 @@ p-value = 0.706 → fail to reject H₀: no cointegration -->
 </section>
 <section id="diagnosis" class="level2" data-number="1.5">
 <h2 data-number="1.5" class="anchored" data-anchor-id="diagnosis"><span class="header-section-number">1.5</span> Diagnosis</h2>
-<div id="adf9f50d" class="cell" data-execution_count="10">
+<div id="85552603" class="cell" data-execution_count="10">
 <div class="cell-output cell-output-stderr">
 <pre><code>/Users/taguhi/opt/anaconda3/envs/py311env/lib/python3.11/site-packages/statsmodels/tsa/base/tsa_model.py:473: ValueWarning: A date index has been provided, but it has no associated frequency information and so will be ignored when e.g. forecasting.
   self._init_dates(dates, freq)
@@ -663,7 +663,7 @@ Key results from VAR:
     }
       var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
       var mailtoRegex = new RegExp(/^mailto:/);
-        var filterRegex = new RegExp("https:\/\/taguhihakobyan\.com");
+        var filterRegex = new RegExp("https:\/\/tagijakob\.github\.io\/webpage\/");
       var isInternal = (href) => {
           return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
       }

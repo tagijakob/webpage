@@ -5,7 +5,7 @@ project:
 website:
   title: "My Portfolio"
   description: "Showcasing projects and insights"
-  site-url: "https://taguhihakobyan.com"   
+  site-url: "https://tagijakob.github.io/webpage/"
   navbar:
     left:
       - href: index.qmd

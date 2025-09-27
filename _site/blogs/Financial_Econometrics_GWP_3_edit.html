@@ -6,10 +6,8 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="author" content="Taguhi Hakobyan">
-<meta name="dcterms.date" content="2025-09-07">
 
-<title>Outliers – My Portfolio</title>
+<title>Problem 1 – My Portfolio</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -136,7 +134,6 @@ window.Quarto = {
 </script>
 
 <link rel="stylesheet" href="../styles.css">
-<link rel="stylesheet" href="../../styles.css">
 </head>
 
 <body class="floating nav-fixed quarto-light">
@@ -199,8 +196,8 @@ window.Quarto = {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#problem-1" id="toc-problem-1" class="nav-link active" data-scroll-target="#problem-1"><span class="header-section-number">1</span> <strong>Problem 1</strong></a></li>
-  <li><a href="#problem-2" id="toc-problem-2" class="nav-link" data-scroll-target="#problem-2"><span class="header-section-number">2</span> Problem 2</a></li>
+  <li><a href="#problem-2" id="toc-problem-2" class="nav-link active" data-scroll-target="#problem-2">Problem 2</a></li>
+  <li><a href="#problem-3" id="toc-problem-3" class="nav-link" data-scroll-target="#problem-3"><strong>Problem 3</strong></a></li>
   </ul>
 </nav>
 </nav>
@@ -213,29 +210,14 @@ window.Quarto = {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Outliers</h1>
-  <div class="quarto-categories">
-    <div class="quarto-category">blog</div>
-  </div>
-  </div>
+<h1 class="title"><strong>Problem 1</strong></h1>
+</div>
 
 
 
 <div class="quarto-title-meta">
 
-    <div>
-    <div class="quarto-title-meta-heading">Author</div>
-    <div class="quarto-title-meta-contents">
-             <p>Taguhi Hakobyan </p>
-          </div>
-  </div>
     
-    <div>
-    <div class="quarto-title-meta-heading">Published</div>
-    <div class="quarto-title-meta-contents">
-      <p class="date">September 7, 2025</p>
-    </div>
-  </div>
   
     
   </div>
@@ -245,8 +227,6 @@ window.Quarto = {
 </header>
 
 
-<section id="problem-1" class="level2" data-number="1">
-<h2 data-number="1" class="anchored" data-anchor-id="problem-1"><span class="header-section-number">1</span> <strong>Problem 1</strong></h2>
 <p><strong>True model</strong> <span class="math display">\[Y_{i}=α+βx_{i}+γw_{i}+δz_{i}+ε_{i} \tag{1}\]</span></p>
 <p><strong>Erroneous model</strong> <span class="math display">\[Y_{i}=α+βx_{i}+γw_{i}+μ_{i} \tag{2}\]</span></p>
 <p>where <span class="math inline">\(μ_{i}=δz_{i}+ε_{i}\)</span>, since <span class="math inline">\(z_{i}\)</span> was omitted from the model.</p>
@@ -287,7 +267,7 @@ In attached .ipynb, I did the following steps:</p>
 </li>
 <li>Repeated for different sample sizes (100 vs 1000)</li>
 </ul>
-<div id="cc972d42" class="cell" data-execution_count="1">
+<div id="cell-2" class="cell" data-execution_count="2">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.linear_model <span class="im">import</span> LinearRegression</span>
@@ -328,9 +308,8 @@ n=1000: Full model b_hat = 2.00, c_hat = 3.03; Reduced model b_hat = 4.37</code>
 </div>
 <p><strong>Discussion:</strong></p>
 <p>When both <span class="math inline">\(X\)</span> and <span class="math inline">\(Z\)</span> are included in the model, the estimated coefficients (<span class="math inline">\(b\)</span> and <span class="math inline">\(c\)</span>) are close to their true values. However, when <span class="math inline">\(Z\)</span> is omitted, the estimated coefficient for <span class="math inline">\(X\)</span> in the reduced model is biased and does not reflect the true value of <span class="math inline">\(b\)</span>. This is due to omitted variable bias, which occurs when a relevant predictor that is correlated with the included predictor is left out of the model. Increasing the sample size reduces the variance of the estimates, but the bias in the reduced model remains. This simulation demonstrates the importance of including all relevant predictors in a regression model, especially when predictors are correlated.</p>
-</section>
-<section id="problem-2" class="level2" data-number="2">
-<h2 data-number="2" class="anchored" data-anchor-id="problem-2"><span class="header-section-number">2</span> Problem 2</h2>
+<section id="problem-2" class="level2">
+<h2 class="anchored" data-anchor-id="problem-2">Problem 2</h2>
 <p><strong>2a)</strong> <br> Regression models, such as OLS linear regression, are widely used for modeling relationships between variables. But, one of the key limitations of many regression techniques is their sensitivity to outliers and high leverage data points that deviate significantly from the general pattern of the data. Outliers can be: measurement errors, data entry mistakes, or real one time events. Regardless of their origin, outliers can significantly affect the results of regression analysis and reduce explanatory power of the model.</p>
 <p>For example, in case of OLS regression, the model estimates coefficients by minimizing the sum of squared residuals (the differences between observed and predicted values). Because the residuals are squared, large deviations (i.e., outliers and high leverage points) will distort the results. Even a single outlier can pull the regression line toward itself, and distort the estimated relationship between variables. This can lead to biased or misleading coefficient estimates, inflated standard errors, and reduced predictive accuracy.</p>
 <p>The influence of outliers is not limited to the estimated coefficients. Outliers can also affect diagnostic measures such as R-squared, residual plots, and tests for model assumptions (e.g., normality and homoscedasticity of residuals). In some cases, outliers may mask or exaggerate relationships, making it difficult to detect true patterns in the data.</p>
@@ -345,7 +324,7 @@ n=1000: Full model b_hat = 2.00, c_hat = 3.03; Reduced model b_hat = 4.37</code>
 <li><span class="math inline">\(\epsilon_i\)</span> ~ N(0,1)</li>
 </ul>
 <p>In attached .ipynb, I did the following steps: - I generated 30 data points for <span class="math inline">\(x\)</span> and <span class="math inline">\(\epsilon_i\)</span> - I fitted an OLS model to this data to estimate the slope and intercept. - Next, I introduced 3 outliers by replacing the last three <span class="math inline">\(y\)</span> values with outliers (e.g., -20, 25, -30) - I refitted the OLS model to the data with outliers and compared the estimated parameters to those from the original data.</p>
-<div id="de4b02b7" class="cell" data-execution_count="2">
+<div id="cell-4" class="cell" data-execution_count="4">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.linear_model <span class="im">import</span> LinearRegression</span>
@@ -383,22 +362,25 @@ n=1000: Full model b_hat = 2.00, c_hat = 3.03; Reduced model b_hat = 4.37</code>
 <span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">"Effect of Outliers on Regression Line"</span>)</span>
 <span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a>plt.show()</span>
 <span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"No Outliers: Slope = </span><span class="sc">{</span>model_clean<span class="sc">.</span>coef_[<span class="dv">0</span>]<span class="sc">:.2f}</span><span class="ss">, Intercept = </span><span class="sc">{</span>model_clean<span class="sc">.</span>intercept_<span class="sc">:.2f}</span><span class="ss">"</span>)</span>
+<span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"No Outliers:   Slope = </span><span class="sc">{</span>model_clean<span class="sc">.</span>coef_[<span class="dv">0</span>]<span class="sc">:.2f}</span><span class="ss">, Intercept = </span><span class="sc">{</span>model_clean<span class="sc">.</span>intercept_<span class="sc">:.2f}</span><span class="ss">"</span>)</span>
 <span id="cb3-39"><a href="#cb3-39" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"With Outliers: Slope = </span><span class="sc">{</span>model_outliers<span class="sc">.</span>coef_[<span class="dv">0</span>]<span class="sc">:.2f}</span><span class="ss">, Intercept = </span><span class="sc">{</span>model_outliers<span class="sc">.</span>intercept_<span class="sc">:.2f}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="post1_outliers_files/figure-html/cell-3-output-1.png" class="img-fluid figure-img"></p>
+<p><img src="Financial_Econometrics_GWP_3_edit_files/figure-html/cell-3-output-1.png" class="img-fluid figure-img"></p>
 </figure>
 </div>
 </div>
 <div class="cell-output cell-output-stdout">
-<pre><code>No Outliers: Slope = 2.72, Intercept = 1.43
+<pre><code>No Outliers:   Slope = 2.72, Intercept = 1.43
 With Outliers: Slope = 3.16, Intercept = -2.79</code></pre>
 </div>
 </div>
 <p><strong>Discussion:</strong></p>
 <p>The plot above shows the regression lines with and without outliers. The presence of just a few extreme outliers shifts the regression line, resulting in a steeper slope and a much higher intercept. The printed coefficients quantify this effect, with the original (without outliers) regression results being closer to the true coefficients, while the model with outliers deviates significantly from the true coefficients. This simulation demonstrates how sensitive OLS regression is to outliers and highlights the importance of detecting and addressing outliers in real-world data analysis.</p>
+</section>
+<section id="problem-3" class="level2">
+<h2 class="anchored" data-anchor-id="problem-3"><strong>Problem 3</strong></h2>
 
 
 </section>

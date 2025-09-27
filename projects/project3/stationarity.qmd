@@ -28,7 +28,7 @@ jupyter: python3
 
 
 
-# Modeling Non-Stationarity and Equilibrium: Gold Prices vs USD Index
+# Modeling Non-Stationarity and Equilibrium:Gold Prices vs USD Index
 Challenge Selected (Modeling Non-Stationarity and Finding an Equilibrium) 
 
 ## Definition

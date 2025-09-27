@@ -1,0 +1,747 @@
+---
+author: Taguhi Hakobyan
+title: "GWP_3.2"
+project:
+  type: website
+
+website:
+  title: "2025-09-27"
+  navbar:
+    left:
+      - href: index.qmd
+        text: Home
+      - about.qmd
+
+format:
+  html:
+#   pdf:
+    code: false
+    theme: cosmo
+    css: ../../styles.css
+    code-fold: true
+    toc: true
+    toc-location: left
+    number-sections: true
+    
+jupyter: python3
+---
+
+
+
+# Modeling Non-Stationarity and Equilibrium: Gold Prices vs USD Index
+Challenge Selected (Modeling Non-Stationarity and Finding an Equilibrium) 
+
+## Definition
+
+We analyze the long-term relationship between gold prices and the USD index using cointegration theory and vector autoregression (VAR) models.
+
+Let $𝐺_t$ denote the log of the gold price and $D_t$ the log of the USD index.
+
+We test for a cointegration relationship of the form:
+
+$$ 𝐺_𝑡 = 𝛼 + 𝛽 𝐷_𝑡 + 𝑢_𝑡 $$
+
+If the residuals 𝑢_t are stationary, then gold and the USD index are cointegrated — suggesting a long-term equilibrium.
+
+In the absence of cointegration, we use a VAR model on first-differenced log prices:
+
+$$ \Delta G_t = c + \sum_{i=1}^p \Phi_i \Delta G_{t-i} + \sum_{i=1}^p \Psi_i \Delta D_{t-i} + \varepsilon_t $$
+$$ \Delta D_t = c + \sum_{i=1}^p \Theta_i \Delta G_{t-i} + \sum_{i=1}^p \Gamma_i \Delta D_{t-i} + \eta_t $$
+
+## Description
+
+We examine whether a long-run equilibrium exists between gold prices and the U.S. Dollar Index (DXY), and model their short-run dynamics. If no equilibrium exists, we analyze short-term interactions using VAR.
+
+## Demonstration
+
+**Data Description**  
+This study utilizes two key financial time series from 2005 to 2025:
+
+**Gold Futures (GC=F)**: This represents the front-month gold futures contract traded on the COMEX exchange (CME Group). It is a widely used proxy for gold prices in institutional and academic research. Gold futures reflect market expectations about the value of gold, incorporating information about inflation, interest rates, and geopolitical risk. As a highly liquid and actively traded instrument, GC=F is well-suited for econometric modeling, including time series analysis and cointegration tests.  
+
+**U.S. Dollar Index Futures (DX-Y.NYB)**: This ticker represents the U.S. Dollar Index futures contract traded on the New York Board of Trade (NYBOT), now part of the Intercontinental Exchange (ICE). It measures the value of the U.S. dollar against a basket of six major currencies (EUR, JPY, GBP, CAD, SEK, CHF). As a futures contract, DX-Y.NYB is forward-looking and reflects investor expectations about the strength of the dollar in global markets.  
+
+
+```{python}
+# |echo: false
+# Imports
+import os
+import warnings
+warnings.filterwarnings("ignore")
+
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+
+import statsmodels.api as sm
+from statsmodels.tsa.stattools import adfuller, kpss, coint
+from statsmodels.tsa.vector_ar.vecm import coint_johansen
+from statsmodels.tsa.vector_ar.var_model import VAR
+
+import yfinance as yf
+
+# ===========================================
+# Gold vs USD Index: Non-stationarity & Equilibrium (Cointegration + ECM)
+# ===========================================
+# Notes:
+#   - Uses multiple ticker fallbacks for robustness.
+#   - If cointegration is found → ECM; else → VAR on Δ
+# ===========================================
+
+
+
+# ---------------------------
+# Helpers
+# ---------------------------
+def try_download(tickers, start, end, col="Adj Close"):
+    """
+    args:
+        tickers[list[str]]  : try a list of tickers; 
+        start[str]          : start date
+        end[str]            : end date
+        col[str]            : column to choose                 
+    
+    return[DataFrame]:
+         first successful series as a DataFrame with column name set to the chosen ticker."""
+    
+    for t in tickers:
+        try:
+            df = yf.download(t, start=start, end=end, auto_adjust=True, progress=False)
+            if df is not None and len(df) > 100:
+                s = df[col] if col in df.columns else df["Close"]
+                s = s.dropna()
+                if s.notna().sum().iloc[0] > 100:
+                    return s
+        except Exception:
+            continue
+    raise RuntimeError(f"Failed to download any of: {tickers}")
+
+def adf_summary(x, name):
+    res = adfuller(x, autolag="AIC")
+    out = {
+        "series": name,
+        "stat": res[0],
+        "pvalue": res[1],
+        "lags": res[2],
+        "nobs": res[3],
+        "crit": res[4]
+    }
+    return out
+
+def kpss_summary(x, name, regression="c"):
+    """
+    regression [str]: 
+        "c" = level, 
+        "ct" = trend
+    """
+
+
+    try:
+        stat, pvalue, lags, crit = kpss(x, regression=regression, nlags="auto")
+        return {"series": name, "stat": stat, "pvalue": pvalue, "lags": lags, "crit": crit, "reg": regression}
+    except Exception as e:
+        return {"series": name, "error": str(e), "reg": regression}
+
+def print_test(title, results):
+    print(f"\n=== {title} ===")
+    if isinstance(results, list):
+        for r in results:
+            if "error" in r:
+                print(f"{r['series']} (KPSS {r['reg']}): ERROR {r['error']}")
+            else:
+                print(f"{r['series']}: stat={r['stat']:.3f}, p={r['pvalue']:.3g}, lags={r.get('lags','-')}, crit={r.get('crit','-')}")
+    else:
+        r = results
+        print(f"{r['series']}: stat={r['stat']:.3f}, p={r['pvalue']:.3g}, lags={r['lags']}, nobs={r['nobs']}")
+        print(f"crit: {r['crit']}")
+
+def plot_series(df, title, fname):
+    ax = df.plot(figsize=(10,5))
+    ax.set_title(title)
+    ax.set_xlabel("Date")
+    ax.set_ylabel("Level")
+    plt.tight_layout()
+    plt.savefig(os.path.join(FIGDIR, fname), dpi=150)
+    plt.close()
+
+def plot_spreads(y, x, beta, const, title, fname):
+    z = y - (const + beta*x)
+    fig, ax = plt.subplots(figsize=(10,5))
+    ax.plot(z.index, z, label="Residuals (cointegration spread)")
+    ax.axhline(0, linestyle="--")
+    ax.set_title(title)
+    ax.set_xlabel("Date")
+    ax.set_ylabel("Residual")
+    ax.legend()
+    plt.tight_layout()
+    plt.savefig(os.path.join(FIGDIR, fname), dpi=150)
+    plt.close()
+
+
+# Config
+# ---------------------------
+START = "2005-01-01"
+END   = None  # None = today
+FIGDIR = "figs"
+os.makedirs(FIGDIR, exist_ok=True)
+
+# Preferred tickers and fallbacks
+# Gold: spot proxy "GC=F" (COMEX front-month), ETF proxy "GLD"
+GOLD_TICKERS = ["GC=F", "XAUUSD=X", "GLD"]
+# USD index: "^DXY" is primary; ETF proxy "UUP"
+DXY_TICKERS  = ["DX-Y.NYB", "UUP"] # ["^DXY", "DX-Y.NYB", "UUP"]
+
+# ---------------------------
+# 1) Download & Prepare
+# ---------------------------
+gold = try_download(GOLD_TICKERS, START, END)
+dxy  = try_download(DXY_TICKERS, START, END)
+
+# Rename clean columns
+gold_col = gold.columns[0]
+dxy_col  = dxy.columns[0]
+gold.rename(columns={gold_col: "GOLD"}, inplace=True)
+dxy.rename(columns={dxy_col: "DXY"}, inplace=True)
+print(f"Using GOLD ticker: {gold_col}, DXY ticker: {dxy_col}")
+# Align daily intersection
+data = gold.join(dxy, how="inner").dropna()
+data.tail()
+
+```
+
+
+**Tests Results Overview**  
+
+```{python}
+# |echo: false
+
+# Use logs for cointegration (levels tend to be I(1), logs common in finance)
+data["log_gold"] = np.log(data["GOLD"])
+data["log_dxy"]  = np.log(data["DXY"])
+
+# Quick plot levels
+plot_series(data[["GOLD","DXY"]], "Gold & USD Index (levels)", "levels.png")
+plot_series(data[["log_gold","log_dxy"]], "Gold & USD Index (log-levels)", "log_levels.png")
+
+# print("Data sample:")
+# print(data.tail())
+
+# ---------------------------
+# 2) Unit Root Tests (levels & first differences)
+# ---------------------------
+tests = []
+
+# Levels
+adf_g = adf_summary(data["log_gold"], "ADF log_gold")
+adf_d = adf_summary(data["log_dxy"],  "ADF log_dxy")
+kpss_g_c = kpss_summary(data["log_gold"], "KPSS log_gold", "c")
+kpss_d_c = kpss_summary(data["log_dxy"],  "KPSS log_dxy", "c")
+kpss_g_ct = kpss_summary(data["log_gold"], "KPSS log_gold", "ct")
+kpss_d_ct = kpss_summary(data["log_dxy"],  "KPSS log_dxy", "ct")
+
+# print_test("ADF (levels)", adf_g); print_test("", adf_d)
+
+# Interpretation for ADF
+# print("\nInterpretation (ADF - levels):")
+# print("→ log_gold: p = {:.3f} → {} unit root (non-stationary)".format(adf_g["pvalue"], 
+    # "FAIL to reject ⇒ likely has" if adf_g["pvalue"] > 0.05 else "REJECT ⇒ no"))
+# print("→ log_dxy : p = {:.3f} → {} unit root (non-stationary)".format(adf_d["pvalue"], 
+    # "FAIL to reject ⇒ likely has" if adf_d["pvalue"] > 0.05 else "REJECT ⇒ no"))
+
+# print_test("KPSS (levels, level-stationary)", [kpss_g_c, kpss_d_c])
+# print_test("KPSS (levels, trend-stationary)", [kpss_g_ct, kpss_d_ct])
+
+# Interpretation for KPSS
+# print("\nInterpretation (KPSS - levels):")
+# for test in [kpss_g_c, kpss_d_c]:
+#     stat = test["stat"]
+#     series = test["series"]
+#     crit = test["crit"]["1%"]
+#     print(f"→ {series}: stat = {stat:.3f} vs 1% crit = {crit} ⇒ {'REJECT ⇒ not stationary' if stat > crit else 'DO NOT reject ⇒ likely stationary'}")
+
+
+# First differences
+data["d_log_gold"] = data["log_gold"].diff()
+data["d_log_dxy"]  = data["log_dxy"].diff()
+data_diff = data.dropna()
+
+adf_dg = adf_summary(data_diff["d_log_gold"], "ADF Δlog_gold")
+adf_dd = adf_summary(data_diff["d_log_dxy"],  "ADF Δlog_dxy")
+kpss_dg = kpss_summary(data_diff["d_log_gold"], "KPSS Δlog_gold", "c")
+kpss_dd = kpss_summary(data_diff["d_log_dxy"],  "KPSS Δlog_dxy", "c")
+
+# print_test("ADF (first differences)", adf_dg); print_test("", adf_dd)
+# print_test("ADF (first differences)", adf_dg)
+# print_test("", adf_dd)
+
+# print("\nInterpretation (ADF - first differences):")
+# print("→ Δlog_gold: p = {:.3f} → {} unit root ⇒ stationary".format(adf_dg["pvalue"], 
+#     "REJECT" if adf_dg["pvalue"] < 0.05 else "FAIL to reject"))
+# print("→ Δlog_dxy : p = {:.3f} → {} unit root ⇒ stationary".format(adf_dd["pvalue"], 
+#     "REJECT" if adf_dd["pvalue"] < 0.05 else "FAIL to reject"))
+
+# print_test("KPSS (first differences)", [kpss_dg, kpss_dd])
+
+# print_test("KPSS (first differences)", [kpss_dg, kpss_dd])
+
+# print("\nInterpretation (KPSS - first differences):")
+# for test in [kpss_dg, kpss_dd]:
+#     stat = test["stat"]
+#     series = test["series"]
+#     crit = test["crit"]["5%"]
+#     print(f"→ {series}: stat = {stat:.3f} vs 5% crit = {crit} ⇒ {'DO NOT reject ⇒ likely stationary' if stat < crit else 'REJECT ⇒ not stationary'}")
+
+
+# ---------------------------
+# 3) Cointegration Tests
+# ---------------------------
+# 3a) Engle–Granger (y ~ x) both in logs
+y = data["log_gold"]
+x = data["log_dxy"]
+
+eg_stat, eg_p, _ = coint(y, x)  # Null: no cointegration
+# print(f"\n=== Engle–Granger (log_gold on log_dxy) ===")
+# print(f"stat={eg_stat:.3f}, p={eg_p:.4g} (H0: no cointegration)")
+
+# print("\nInterpretation (Engle–Granger):")
+# if eg_p < 0.05:
+#     print("→ p = {:.4f} < 0.05 → REJECT null ⇒ evidence of cointegration between log_gold and log_dxy".format(eg_p))
+# else:
+#     print("→ p = {:.4f} ≥ 0.05 → FAIL to reject null ⇒ no evidence of cointegration (no long-run equilibrium)".format(eg_p))
+
+
+# 3b) Johansen (det_order=1 includes a deterministic trend in cointegration eq)
+joh = coint_johansen(data[["log_gold", "log_dxy"]], det_order=0, k_ar_diff=1)
+# print("\n=== Johansen Test (trace statistics) ===")
+# for i, tr in enumerate(joh.lr1):
+    # print(f"r <= {i}: trace stat = {tr:.3f}, crit (90/95/99) = {joh.cvt[i]}")
+
+# print("\nInterpretation (Johansen Test):")
+# if joh.lr1[0] < joh.cvt[0][1]:
+#     print("→ Trace stat for r ≤ 0 is {:.3f} < 95% critical value {:.3f} ⇒ FAIL to reject H0 ⇒ no cointegration".format(joh.lr1[0], joh.cvt[0][1]))
+# else:
+#     print("→ Trace stat for r ≤ 0 is {:.3f} ≥ 95% critical value {:.3f} ⇒ REJECT H0 ⇒ at least one cointegrating relation".format(joh.lr1[0], joh.cvt[0][1]))
+
+
+# ---------------------------
+# 4) If Cointegrated → ECM; else → VAR on Δ
+# ---------------------------
+# Helper: OLS for cointegrating vector to build residual
+X = sm.add_constant(x)
+ols_coint = sm.OLS(y, X).fit()
+const_hat, beta_hat = ols_coint.params["const"], ols_coint.params["log_dxy"]
+# print(f"\nCointegrating relation (OLS): log_gold = {const_hat:.4f} + {beta_hat:.4f} * log_dxy")
+
+# Residual (equilibrium error)
+data["res_coint"] = y - (const_hat + beta_hat * x)
+plot_spreads(y, x, beta_hat, const_hat, "Cointegration Residual (Gold vs USD Index)", "residual_coint.png")
+
+# Decision: cointegrated if EG p < 0.05 (you can tighten/loosen)
+cointegrated = eg_p < 0.05
+
+if cointegrated:
+    # print("\n>>> Evidence of cointegration detected. Proceeding with ECM.")
+    # ECM for Δlog_gold with error-correction term lagged
+    df = data.dropna().copy()
+    df["ecm_lag"] = df["res_coint"].shift(1)
+    df["d_log_gold"] = df["log_gold"].diff()
+    df["d_log_dxy"]  = df["log_dxy"].diff()
+    ecm_df = df.dropna(subset=["d_log_gold","d_log_dxy","ecm_lag"]).copy()
+
+    # Include lags of Δ terms (use 1 lag for simplicity; you can search AIC for best)
+    ecm_df["d_log_gold_l1"] = ecm_df["d_log_gold"].shift(1)
+    ecm_df["d_log_dxy_l1"]  = ecm_df["d_log_dxy"].shift(1)
+    ecm_df = ecm_df.dropna()
+
+    Y = ecm_df["d_log_gold"]
+    X = sm.add_constant(ecm_df[["ecm_lag","d_log_dxy","d_log_gold_l1","d_log_dxy_l1"]])
+    ecm_model = sm.OLS(Y, X).fit(cov_type="HAC", cov_kwds={"maxlags":5})
+    # print("\n=== ECM Results (Δlog_gold) ===")
+    # print(ecm_model.summary())
+
+    # Interpretation snippets
+    alpha = ecm_model.params.get("ecm_lag", np.nan)
+    # print("\nInterpretation:")
+#     print(f"- Error-correction (ecm_lag) = {alpha:.4f}. Expect negative & significant if Gold corrects towards long-run equilibrium.")
+#     print("- Short-run effect of Δlog_dxy should be negative (USD up → Gold down), check sign/significance above.")
+
+# else:
+    # print("\n>>> No robust cointegration evidence. Proceeding with VAR on first differences.")
+    var_df = data_diff[["d_log_gold","d_log_dxy"]].dropna()
+    # Select lag order by AIC up to 10
+    sel = VAR(var_df).select_order(maxlags=10)
+    p = sel.aic
+    if p is None or p < 1:
+        p = 2
+    # print(f"Selected VAR lag order by AIC: {p}")
+    var_model = VAR(var_df).fit(p)
+    # print(var_model.summary())
+
+    # Simple impulse (note: in differences; identification is basic)
+    irf = var_model.irf(10)
+    fig = irf.plot(orth=False)
+    plt.tight_layout()
+    plt.savefig(os.path.join(FIGDIR, "var_irf.png"), dpi=150)
+    plt.close()
+    # print("\nSaved VAR IRF to figs/var_irf.png")
+
+# print("\n Cointegration Summary:")
+# if eg_p >= 0.05 and joh.lr1[0] < joh.cvt[0][1]:
+#     print("- No robust evidence of cointegration found by either test.")
+#     print("- Proceeding with VAR on first differences is appropriate.")
+# else:
+#     print("- At least one test suggests cointegration. Consider ECM instead of plain VAR.")
+
+
+```
+
+
+We collected daily adjusted prices from 2005–2025, calculated their logarithms, and computed first differences to obtain daily returns.
+
+```{python}
+# |echo: false
+import pandas as pd
+
+# Create a table with interpreted test results using existing variables
+stationarity_summary = pd.DataFrame({
+    "Test": ["ADF", "ADF", "KPSS", "KPSS"],
+    "Series": ["log_gold", "log_dxy", "log_gold", "log_dxy"],
+    "Statistic": [
+        f"{adf_g['stat']:.3f}",
+        f"{adf_d['stat']:.3f}",
+        f"{kpss_g_c['stat']:.3f}",
+        f"{kpss_d_c['stat']:.3f}"
+    ],
+    "p-value": [
+        f"{adf_g['pvalue']:.3f}",
+        f"{adf_d['pvalue']:.3f}",
+        "—",  # KPSS does not use p-values directly
+        "—"
+    ],
+    "Conclusion": [
+        "Non-stationary" if adf_g['pvalue'] > 0.05 else "Stationary",
+        "Non-stationary" if adf_d['pvalue'] > 0.05 else "Stationary",
+        "Non-stationary" if kpss_g_c['stat'] > kpss_g_c['crit']['5%'] else "Stationary",
+        "Non-stationary" if kpss_d_c['stat'] > kpss_d_c['crit']['5%'] else "Stationary"
+    ]
+})
+
+stationarity_summary
+```
+
+**Stationarity Tests**  
+
+<!-- | Series      | ADF p-value | KPSS (level) | KPSS (trend) |
+|:-----------:|:-----------:|:------------:|:------------:|
+| log_gold    | 0.76        | 8.33 (✗)     | 1.26 (✗)     |
+| log_dxy     | 0.52        | 8.45 (✗)     | 0.82 (✗)     |
+| Δlog_gold   | 0.000       | 0.186 (✓)    | —            |
+| Δlog_dxy    | 0.000       | 0.045 (✓)    | —            | -->
+
+
+Based on the results of the stationarity tests presented in the table, both series are I(1): non-stationary in levels, stationary in first differences.
+
+**Cointegration Tests**  
+Engle–Granger cointegration result table
+
+```{python}
+# |echo: false
+# Create Engle–Granger cointegration result table
+eg_df = pd.DataFrame({
+    "Test": ["Engle–Granger"],
+    "Test Statistic": [f"{eg_stat:.3f}"],
+    "p-value": [f"{eg_p:.3f}"],
+    "Conclusion": [
+        "Fail to reject H₀ → no cointegration"
+        if eg_p >= 0.05
+        else "Reject H₀ → cointegration exists"
+    ]
+})
+
+eg_df
+```
+
+
+
+<!-- 
+Test Statistic = -1.635
+
+p-value = 0.706 → fail to reject H₀: no cointegration -->
+
+Johansen (Trace Test):
+
+```{python}
+# |echo: false
+import pandas as pd
+
+# Create Johansen cointegration results table
+johansen_df = pd.DataFrame({
+    "Rank": ["r ≤ 0", "r ≤ 1"],
+    "Trace Stat": [f"{joh.lr1[0]:.3f}", f"{joh.lr1[1]:.3f}"],
+    "Critical (95%)": [f"{joh.cvt[0][1]:.3f}", f"{joh.cvt[1][1]:.3f}"]
+})
+
+johansen_df
+```
+
+<!-- 
+| Rank   | Trace Stat | Critical (95%) |
+|:------:|:----------:|:--------------:|
+| r ≤ 0  | 6.237      | 15.494         |
+| r ≤ 1  | 0.559      | 3.842          | -->
+
+→ No cointegration detected.
+
+
+## Diagram
+Gold and USD Index (log-levels)
+```{python}
+# |echo: false
+import matplotlib.pyplot as plt
+
+# Inline log-levels plot
+fig, ax = plt.subplots(figsize=(10, 5))
+data[["log_gold", "log_dxy"]].plot(ax=ax)
+ax.set_title("Gold and USD Index (log-levels)")
+ax.set_xlabel("Date")
+ax.set_ylabel("Log Price")
+plt.tight_layout()
+plt.show()
+
+```
+
+
+Cointegration Residual (non-stationary)
+```{python}
+# |echo: false
+residual = y - (const_hat + beta_hat * x)
+
+fig, ax = plt.subplots(figsize=(10, 5))
+ax.plot(residual.index, residual, label="Residual (Cointegration Spread)")
+ax.axhline(0, linestyle="--", color="gray")
+ax.set_title("Cointegration Residual (Gold vs USD Index)")
+ax.set_xlabel("Date")
+ax.set_ylabel("Residual")
+ax.legend()
+plt.tight_layout()
+plt.show()
+
+```
+
+126-day Rolling Correlation (Δlog_gold vs Δlog_dxy)
+
+```{python}
+# |echo: false
+rolling_corr = data_diff[["d_log_gold", "d_log_dxy"]].rolling(126).corr().unstack().iloc[:, 1]
+
+fig, ax = plt.subplots(figsize=(10, 4))
+ax.plot(rolling_corr.index, rolling_corr.values)
+ax.axhline(0, linestyle="--", color="gray")
+ax.set_title("126-day Rolling Correlation (Δlog_gold vs Δlog_dxy)")
+ax.set_xlabel("Date")
+ax.set_ylabel("Correlation")
+plt.tight_layout()
+plt.show()
+
+```
+
+Impulse Response Functions from VAR on Δlog_gold and Δlog_dxy
+```{python}
+# |echo: false
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import statsmodels.api as sm
+from statsmodels.tsa.vector_ar.var_model import VAR
+
+# --- Parameters ---
+H = 20        # IRF horizon
+MAXLAGS = 10  # used only if we need to (re)fit VAR
+
+# --- Ensure we have a fitted VAR named `var_res` ---
+need_fit = "var_res" not in globals()
+if need_fit:
+    # Expect data with 'log_gold' and 'log_dxy'
+    if "data" not in globals() or not {"log_gold","log_dxy"}.issubset(set(data.columns)):
+        raise ValueError("Expected `data` with columns 'log_gold' and 'log_dxy'.")
+    tmp = data.copy()
+    tmp["d_log_gold"] = tmp["log_gold"].diff()
+    tmp["d_log_dxy"]  = tmp["log_dxy"].diff()
+    var_df = tmp[["d_log_gold","d_log_dxy"]].dropna()
+
+    sel = VAR(var_df).select_order(maxlags=MAXLAGS)
+    p = sel.aic if sel.aic and sel.aic >= 1 else 1
+    var_res = VAR(var_df).fit(p)
+
+# --- Compute IRFs ---
+irf = var_res.irf(H)  # non-orthogonal by default
+
+# Helper to plot one IRF at a time
+def plot_irf_one(irf_obj, shock_idx, response_idx, shock_name, response_name):
+    # irf.irfs has shape (H+1, k, k) with [h, response, shock]
+    series = irf_obj.irfs[:, response_idx, shock_idx]
+    fig, ax = plt.subplots(figsize=(8, 4))
+    ax.plot(range(len(series)), series)
+    ax.axhline(0, linestyle="--")
+    ax.set_xlabel("Horizon (days)")
+    ax.set_ylabel("Response")
+    ax.set_title(f"IRF: shock to {shock_name} → response of {response_name}")
+    plt.tight_layout()
+    plt.show()
+
+# Variable order in the model:
+# 0 -> d_log_gold
+# 1 -> d_log_dxy
+labels = ["Δlog(Gold)", "Δlog(DXY)"]
+
+# 1) shock to Δlog(Gold) → response of Δlog(Gold)
+plot_irf_one(irf, shock_idx=0, response_idx=0, shock_name=labels[0], response_name=labels[0])
+
+# 2) shock to Δlog(Gold) → response of Δlog(DXY)
+plot_irf_one(irf, shock_idx=0, response_idx=1, shock_name=labels[0], response_name=labels[1])
+
+# 3) shock to Δlog(DXY) → response of Δlog(Gold)
+plot_irf_one(irf, shock_idx=1, response_idx=0, shock_name=labels[1], response_name=labels[0])
+
+# 4) shock to Δlog(DXY) → response of Δlog(DXY)
+plot_irf_one(irf, shock_idx=1, response_idx=1, shock_name=labels[1], response_name=labels[1])
+```
+
+
+
+
+## Diagnosis
+
+```{python}
+# |echo: false
+import numpy as np
+import pandas as pd
+import statsmodels.api as sm
+from statsmodels.tsa.vector_ar.var_model import VAR
+from IPython.display import Markdown, display
+
+# --- Config ---
+MAXLAGS = 10     # max lags to consider for AIC selection
+ALPHA   = 0.05   # significance level for "significant" wording
+
+# --- Ensure Δ logs exist ---
+if "log_gold" not in data.columns or "log_dxy" not in data.columns:
+    raise ValueError("Expected columns 'log_gold' and 'log_dxy' in `data`.")
+
+work = data.copy()
+work["d_log_gold"] = work["log_gold"].diff()
+work["d_log_dxy"]  = work["log_dxy"].diff()
+var_df = work[["d_log_gold","d_log_dxy"]].dropna()
+
+# --- Select lag order by AIC, fit VAR ---
+sel = VAR(var_df).select_order(maxlags=MAXLAGS)
+p = sel.aic if sel.aic and sel.aic >= 1 else 1   # safety
+var_res = VAR(var_df).fit(p)
+
+# --- Build design matrices to extract per-equation p-values cleanly ---
+# We'll mirror the VAR regressor construction and fit two OLS models
+def make_lagged(df, p):
+    Z = []
+    for i in range(1, p+1):
+        Z.append(df.shift(i).add_suffix(f"_l{i}"))
+    Z = pd.concat(Z, axis=1)
+    return Z
+
+Z = make_lagged(var_df, p).dropna()
+Y = var_df.loc[Z.index]
+
+# add constant
+X = sm.add_constant(Z)
+
+# equation 1: Δlog_gold_t ~ lags of Δlog_gold and Δlog_dxy
+ols_gold = sm.OLS(Y["d_log_gold"], X).fit()
+
+# equation 2: Δlog_dxy_t ~ lags of Δlog_gold and Δlog_dxy
+ols_dxy  = sm.OLS(Y["d_log_dxy"],  X).fit()
+
+# --- Extract the two effects requested (dynamically) ---
+
+# 1) Effect of Δlog_dxy_{t-1} on Δlog_gold_t
+param_name_dxy_l1 = "d_log_dxy_l1"
+coef_dxy_l1_on_gold = ols_gold.params.get(param_name_dxy_l1, np.nan)
+pval_dxy_l1_on_gold = ols_gold.pvalues.get(param_name_dxy_l1, np.nan)
+
+# 2) Effect of Δlog_gold_{t-2} on Δlog_dxy_t  (only if p >= 2)
+if p >= 2:
+    param_name_gold_l2 = "d_log_gold_l2"
+    coef_gold_l2_on_dxy = ols_dxy.params.get(param_name_gold_l2, np.nan)
+    pval_gold_l2_on_dxy = ols_dxy.pvalues.get(param_name_gold_l2, np.nan)
+else:
+    coef_gold_l2_on_dxy = np.nan
+    pval_gold_l2_on_dxy = np.nan
+
+# --- Compose human-readable interpretations ---
+def sig_word(pv, alpha=ALPHA):
+    if np.isnan(pv):
+        return "N/A"
+    return "significant" if pv < alpha else "not significant"
+
+def sign_word(coef):
+    if np.isnan(coef):
+        return "N/A"
+    return "negatively" if coef < 0 else "positively"
+
+txt = f"""
+Since there’s no cointegration, we fit a VAR model on the first differences.
+
+**Selected model (auto by AIC):**
+- Dependent variables: Δlog(Gold), Δlog(DXY)
+- Lag order: **{p}**
+- AIC (fitted): **{var_res.aic:.2f}**
+
+**Key results from VAR (interpreted via per‑equation OLS with the same regressors):**
+- Δlog(DXY)_{{t−1}} → Δlog(Gold)_t: coefficient = **{coef_dxy_l1_on_gold:.4f}**, p-value = **{pval_dxy_l1_on_gold:.3g}**  
+  ⇒ **{sig_word(pval_dxy_l1_on_gold)}** and **{sign_word(coef_dxy_l1_on_gold)}** impacting gold in the short run.
+
+- Δlog(Gold)_{{t−2}} → Δlog(DXY)_t: coefficient = **{coef_gold_l2_on_dxy:.4f}**, p-value = **{pval_gold_l2_on_dxy:.3g}**  
+  ⇒ **{sig_word(pval_gold_l2_on_dxy)}** and **{sign_word(coef_gold_l2_on_dxy)}** short‑term feedback.
+"""
+
+display(Markdown(txt)) 
+
+```
+
+<!-- Since there’s no cointegration, we fit a VAR model on the first differences using 10 lags (selected by AIC). The VAR captures the short-run dynamics:
+
+Selected model:
+
+Dependent variables: Δlog(Gold), Δlog(DXY)
+
+Lag order: 10
+
+AIC: -19.85
+
+Key results from VAR:
+
+Δlog_dxy (lag 1) significantly negatively impacts Δlog_gold (p = 0.000), indicating USD appreciation depresses gold in the short run.
+
+Δlog_gold (lag 2) negatively impacts Δlog_dxy (p = 0.000), showing short-term feedback. -->
+
+## Damage
+Despite economic logic suggesting long-run equilibrium, no cointegration was detected. This could be due to:   
+- Structural breaks (e.g., 2008 crisis, COVID, inflation shocks)
+<!-- - ETF tracking errors (GLD, UUP) deviating from spot/futures prices -->
+- High volatility may mask long-run trends — regime shifts could be present 
+
+## Directions
+
+To improve model fit:
+
+- Segment the data around crises (e.g., 2008, 2020) and test for regime-specific cointegration.
+- Use true spot or futures prices (XAUUSD=X, GC=F, DX-Y.NYB) if accessible.
+- Consider rolling window ECMs or time-varying parameter models to capture dynamic equilibrium relationships.
+- Add exogenous variables like interest rates, inflation expectations, or geopolitical risk indices.
+
+## Deployment
+
+This model could support:
+
+- Short-term trading strategies using VAR-based forecasts of gold returns in response to dollar moves.
+<!-- - Risk management: assess how a USD shock (e.g., from rate hikes) may impact gold positions. -->
+- Policy analysis: model short-term safe-haven demand reactions to currency volatility.
+- For real-world application, a deeper dataset (e.g., intraday futures or macro-adjusted prices) and structural break analysis are recommended.

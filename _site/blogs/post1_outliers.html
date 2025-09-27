@@ -169,7 +169,7 @@ window.Quarto = {
 <span class="menu-text">Projects</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="../blogs/"> 
+    <a class="nav-link" href="../blogs.html"> 
 <span class="menu-text">Blog</span></a>
   </li>  
 </ul>
@@ -199,7 +199,8 @@ window.Quarto = {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#problem-2" id="toc-problem-2" class="nav-link active" data-scroll-target="#problem-2">Problem 2</a></li>
+  <li><a href="#problem-1" id="toc-problem-1" class="nav-link active" data-scroll-target="#problem-1"><span class="header-section-number">1</span> <strong>Problem 1</strong></a></li>
+  <li><a href="#problem-2" id="toc-problem-2" class="nav-link" data-scroll-target="#problem-2"><span class="header-section-number">2</span> Problem 2</a></li>
   </ul>
 </nav>
 </nav>
@@ -244,31 +245,49 @@ window.Quarto = {
 </header>
 
 
-<p>Problem 1<br>
-1a) No<br>
-1b) ??<br>
-1c) ??<br>
-1d)</p>
-<p><strong>Simulation and Analysis:</strong></p>
-<p>To explore the effect of omitting a relevant predictor in a regression model, I simulated data from a known model with two predictors, where the predictors are correlated (as requested in the assignment). The model is:</p>
-<p><span class="math display">\[ Y_i = 1 + 2 X_i + 3 Z_i + e_i \]</span></p>
-<p>where<br>
-&nbsp;&nbsp; - <span class="math inline">\(a = 1\)</span><br>
-&nbsp;&nbsp; - <span class="math inline">\(b = 2\)</span><br>
-&nbsp;&nbsp; - <span class="math inline">\(c = 3\)</span><br>
-&nbsp;&nbsp; - <span class="math inline">\(e_i\)</span> ~ N(0,1) is standard normal noise<br>
-&nbsp;&nbsp; -<span class="math inline">\(X\)</span> and <span class="math inline">\(Z\)</span> are generated to be correlated<br>
-<br></p>
+<section id="problem-1" class="level2" data-number="1">
+<h2 data-number="1" class="anchored" data-anchor-id="problem-1"><span class="header-section-number">1</span> <strong>Problem 1</strong></h2>
+<p><strong>True model</strong> <span class="math display">\[Y_{i}=α+βx_{i}+γw_{i}+δz_{i}+ε_{i} \tag{1}\]</span></p>
+<p><strong>Erroneous model</strong> <span class="math display">\[Y_{i}=α+βx_{i}+γw_{i}+μ_{i} \tag{2}\]</span></p>
+<p>where <span class="math inline">\(μ_{i}=δz_{i}+ε_{i}\)</span>, since <span class="math inline">\(z_{i}\)</span> was omitted from the model.</p>
+<p><strong>1a)</strong> <br> No, the error terms <span class="math inline">\(μ_{i}\)</span> will generally not satisfy the standard assumptions, even if <span class="math inline">\(ε_{i}\)</span> does. In model (2), <span class="math inline">\(μ_{i}=δz_{i}+ε_{i}\)</span>. Even if <span class="math inline">\(ε_{i}\)</span> is uncorrelated with the regressors <span class="math inline">\(x_{i}\)</span> and <span class="math inline">\(w_{i}\)</span>, it doesn’t mean <span class="math inline">\(μ_{i}\)</span> also will not be correlated with <span class="math inline">\(x_{i}\)</span> and/or <span class="math inline">\(w_{i}\)</span>, unless <span class="math inline">\(z_{i}\)</span> is uncorrelated with <span class="math inline">\(x_{i}\)</span> and <span class="math inline">\(w_{i}\)</span>. If <span class="math inline">\(z_{i}\)</span> is correlated with either <span class="math inline">\(x_{i}\)</span> or <span class="math inline">\(w_{i}\)</span>, then <span class="math inline">\(μ_{i}\)</span> is not independent or uncorrelated with the regressors, violating the standard assumption of zero conditional mean <span class="math inline">\(E[μ_{i}∣x_{i},w_{i}]=0\)</span>. This leads to omitted variable bias.</p>
+<p><strong>1b)</strong> <br> The estimates from model (2) will generally be biased and inconsistent for <span class="math inline">\(α, β,\)</span> and <span class="math inline">\(γ\)</span>. Model (2) omits <span class="math inline">\(z_{i}\)</span>, which is part of the true data-generating process. As a result:</p>
+<ul>
+<li>If <span class="math inline">\(z_{i}\)</span> is correlated with any of the included regressors (<span class="math inline">\(x_{i},  w_{i}\)</span>), then the estimated coefficients <span class="math inline">\(\hat{\beta}\)</span>, <span class="math inline">\(\hat{\gamma}\)</span> and <span class="math inline">\(\hat{\alpha}\)</span> from model (2) will absorb part of the effect of <span class="math inline">\(z_{i}\)</span>, resulting in biased estimates.</li>
+<li><span class="math inline">\(δ\)</span> is not estimated at all in model (2) since <span class="math inline">\(z_{i}\)</span> is excluded.</li>
+</ul>
+<p><strong>1c)</strong> <br> The estimates from model (2) would be the same as those from model (1) if and only if <span class="math inline">\(z_{i}\)</span> is uncorrelated with both <span class="math inline">\(x_{i}\)</span> and <span class="math inline">\(w_{i}\)</span> (i.e., <span class="math inline">\(Cov(z_{i},x_{i})=0\)</span> and <span class="math inline">\(Cov(z_{i},w_{i})=0\)</span>).</p>
+<p>If <span class="math inline">\(z_{i}\)</span> is uncorrelated with all included regressors, then omitting it does not cause bias in the estimation of the coefficients <span class="math inline">\(α, β,\)</span> and <span class="math inline">\(γ\)</span>. In that special case, the omitted variable behaves like part of the error term that satisfies the standard OLS assumptions, and the estimators remain unbiased.</p>
+<p><strong>1d)</strong> <br> To explore the effect of omitting a relevant predictor in a regression model, I simulated data <span class="math inline">\(Y_i\)</span> from a known model with two predictors: <span class="math inline">\(X_i, Z_i\)</span>, where the predictors are correlated (as requested in the assignment). <br>The model is:</p>
+<p><span class="math display">\[ Y_i = 1 + 2 X_i + 3 Z_i + e_i \tag{3}\]</span></p>
+<p>where</p>
+<ul>
+<li><span class="math inline">\(a = 1\)</span></li>
+<li><span class="math inline">\(b = 2\)</span></li>
+<li><span class="math inline">\(c = 3\)</span></li>
+<li><span class="math inline">\(e_i ~ N(0,1)\)</span> is standard normal noise</li>
+<li><span class="math inline">\(X\)</span> and <span class="math inline">\(Z\)</span> are generated to be correlated</li>
+</ul>
 <p><strong>Simulation Steps:</strong><br>
-- Generate <span class="math inline">\(n\)</span> samples of <span class="math inline">\(X\)</span> from a standard normal distribution.<br>
-- Generate <span class="math inline">\(Z\)</span> as <span class="math inline">\(Z = 0.8 X + 0.6 u\)</span>, where <span class="math inline">\(u\)</span> is standard normal and independent of <span class="math inline">\(X\)</span> (so <span class="math inline">\(X\)</span> and <span class="math inline">\(Z\)</span> are correlated)<br>
-- Generate <span class="math inline">\(Y\)</span> using the model above<br>
-- Fit two regression models:<br>
-&nbsp;&nbsp; 1. Full model: <span class="math inline">\(Y\)</span> on <span class="math inline">\(X\)</span> and <span class="math inline">\(Z\)</span> (both predictors)<br>
-&nbsp;&nbsp; 2. Reduced model: <span class="math inline">\(Y\)</span> on <span class="math inline">\(X\)</span> only (omit <span class="math inline">\(Z\)</span>)<br>
-- Compare the estimated coefficient for <span class="math inline">\(X\)</span> in both models<br>
-- Repeat for different sample sizes</p>
-<div id="c26ad152" class="cell" data-execution_count="1">
+In attached .ipynb, I did the following steps:</p>
+<ul>
+<li>Generated <span class="math inline">\(n\)</span> samples of <span class="math inline">\(X\)</span> from a standard normal distribution</li>
+<li>Generate <span class="math inline">\(Z\)</span> as <span class="math inline">\(Z = 0.8X + 0.6u\)</span>, where <span class="math inline">\(u\)</span> is standard normal and independent of <span class="math inline">\(X\)</span> (so <span class="math inline">\(X\)</span> and <span class="math inline">\(Z\)</span> are correlated)<br>
+</li>
+<li>Generated <span class="math inline">\(Y\)</span> using the model above<br>
+</li>
+<li>Fitted two regression models:
+<ol type="1">
+<li>Full model: <span class="math inline">\(Y\)</span> on <span class="math inline">\(X\)</span> and <span class="math inline">\(Z\)</span> (with both predictors)<br>
+</li>
+<li>Reduced model: <span class="math inline">\(Y\)</span> on <span class="math inline">\(X\)</span> only (omitted <span class="math inline">\(Z\)</span>)<br>
+</li>
+</ol></li>
+<li>Compared the estimated coefficient for <span class="math inline">\(X\)</span> in both models<br>
+</li>
+<li>Repeated for different sample sizes (100 vs 1000)</li>
+</ul>
+<div id="8b79fe07" class="cell" data-execution_count="1">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.linear_model <span class="im">import</span> LinearRegression</span>
@@ -297,36 +316,36 @@ window.Quarto = {
 <span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a><span class="co"># Try with n=100</span></span>
 <span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>b_full, c_full, b_reduced <span class="op">=</span> simulate_and_compare(n<span class="op">=</span><span class="dv">100</span>)</span>
-<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"n=100: Full model b_hat = </span><span class="sc">{</span>b_full<span class="sc">:.2f}</span><span class="ss">, c_hat = </span><span class="sc">{</span>c_full<span class="sc">:.2f}</span><span class="ss">; Reduced model b_hat = </span><span class="sc">{</span>b_reduced<span class="sc">:.2f}</span><span class="ss">"</span>)</span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"n=100:  Full model b_hat = </span><span class="sc">{</span>b_full<span class="sc">:.2f}</span><span class="ss">, c_hat = </span><span class="sc">{</span>c_full<span class="sc">:.2f}</span><span class="ss">; Reduced model b_hat = </span><span class="sc">{</span>b_reduced<span class="sc">:.2f}</span><span class="ss">"</span>)</span>
 <span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a><span class="co"># Try with n=1000</span></span>
 <span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>b_full2, c_full2, b_reduced2 <span class="op">=</span> simulate_and_compare(n<span class="op">=</span><span class="dv">1000</span>)</span>
 <span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"n=1000: Full model b_hat = </span><span class="sc">{</span>b_full2<span class="sc">:.2f}</span><span class="ss">, c_hat = </span><span class="sc">{</span>c_full2<span class="sc">:.2f}</span><span class="ss">; Reduced model b_hat = </span><span class="sc">{</span>b_reduced2<span class="sc">:.2f}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>n=100: Full model b_hat = 2.24, c_hat = 2.98; Reduced model b_hat = 4.37
+<pre><code>n=100:  Full model b_hat = 2.24, c_hat = 2.98; Reduced model b_hat = 4.37
 n=1000: Full model b_hat = 2.00, c_hat = 3.03; Reduced model b_hat = 4.37</code></pre>
 </div>
 </div>
 <p><strong>Discussion:</strong></p>
 <p>When both <span class="math inline">\(X\)</span> and <span class="math inline">\(Z\)</span> are included in the model, the estimated coefficients (<span class="math inline">\(b\)</span> and <span class="math inline">\(c\)</span>) are close to their true values. However, when <span class="math inline">\(Z\)</span> is omitted, the estimated coefficient for <span class="math inline">\(X\)</span> in the reduced model is biased and does not reflect the true value of <span class="math inline">\(b\)</span>. This is due to omitted variable bias, which occurs when a relevant predictor that is correlated with the included predictor is left out of the model. Increasing the sample size reduces the variance of the estimates, but the bias in the reduced model remains. This simulation demonstrates the importance of including all relevant predictors in a regression model, especially when predictors are correlated.</p>
-<section id="problem-2" class="level2">
-<h2 class="anchored" data-anchor-id="problem-2">Problem 2</h2>
-<p>2a. Regression models, such as OLS linear regression, are widely used for modeling relationships between variables. But, one of the key limitations of many regression techniques is their sensitivity to outliers and high leverage data points that deviate significantly from the general pattern of the data. Outliers can be: measurement errors, data entry mistakes, or real one time events. Regardless of their origin, outliers can significantly affect the results of regression analysis and reduce explanatory power of the model.</p>
+</section>
+<section id="problem-2" class="level2" data-number="2">
+<h2 data-number="2" class="anchored" data-anchor-id="problem-2"><span class="header-section-number">2</span> Problem 2</h2>
+<p><strong>2a)</strong> <br> Regression models, such as OLS linear regression, are widely used for modeling relationships between variables. But, one of the key limitations of many regression techniques is their sensitivity to outliers and high leverage data points that deviate significantly from the general pattern of the data. Outliers can be: measurement errors, data entry mistakes, or real one time events. Regardless of their origin, outliers can significantly affect the results of regression analysis and reduce explanatory power of the model.</p>
 <p>For example, in case of OLS regression, the model estimates coefficients by minimizing the sum of squared residuals (the differences between observed and predicted values). Because the residuals are squared, large deviations (i.e., outliers and high leverage points) will distort the results. Even a single outlier can pull the regression line toward itself, and distort the estimated relationship between variables. This can lead to biased or misleading coefficient estimates, inflated standard errors, and reduced predictive accuracy.</p>
 <p>The influence of outliers is not limited to the estimated coefficients. Outliers can also affect diagnostic measures such as R-squared, residual plots, and tests for model assumptions (e.g., normality and homoscedasticity of residuals). In some cases, outliers may mask or exaggerate relationships, making it difficult to detect true patterns in the data.</p>
 <p>To address the sensitivity to outliers and high leverage points, analysts should carefully analyze the origination of the points, and decide on proper handling. They can use data transformations, or outlier detection and removal. Ultimately, careful data exploration and understanding of the context are essential for making informed decisions about handling outliers in regression analysis.</p>
-<p>2b.</p>
-<p><strong>Simulation Setup:</strong> - I generated 30 data points following a linear relationship:<br>
+<p><strong>2b)</strong></p>
+<p><strong>Simulation Setup:</strong> - Suppose we have following linear relationship:<br>
 <span class="math display">\[ y_i = 1 + 3x_i + \epsilon_i \]</span></p>
-<p>where<br>
-&nbsp;&nbsp; <span class="math inline">\(x_i\)</span> is drawn from a uniform distribution<br>
-&nbsp;&nbsp; <span class="math inline">\(\epsilon_i\)</span> ~ N(0,1)</p>
+<p>where</p>
 <ul>
-<li>I fit an OLS model to this data to estimate the slope and intercept.</li>
-<li>Next, I introduced 3 outliers by replacing the last three <span class="math inline">\(y\)</span> values with extremely large numbers (e.g., 50, 55, 60)</li>
-<li>I refit the OLS model to the data with outliers and compared the estimated parameters to those from the original data.</li>
+<li><span class="math inline">\(x_i\)</span> is drawn from a uniform distribution<br>
+</li>
+<li><span class="math inline">\(\epsilon_i\)</span> ~ N(0,1)</li>
 </ul>
-<div id="0c3433a4" class="cell" data-execution_count="2">
+<p>In attached .ipynb, I did the following steps: - I generated 30 data points for <span class="math inline">\(x\)</span> and <span class="math inline">\(\epsilon_i\)</span> - I fitted an OLS model to this data to estimate the slope and intercept. - Next, I introduced 3 outliers by replacing the last three <span class="math inline">\(y\)</span> values with outliers (e.g., -20, 25, -30) - I refitted the OLS model to the data with outliers and compared the estimated parameters to those from the original data.</p>
+<div id="f3060ac1" class="cell" data-execution_count="2">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.linear_model <span class="im">import</span> LinearRegression</span>
@@ -379,7 +398,7 @@ With Outliers: Slope = 3.16, Intercept = -2.79</code></pre>
 </div>
 </div>
 <p><strong>Discussion:</strong></p>
-<p>The plot above shows the regression lines with and without outliers. The presence of just a few extreme outliers shifts the regression line, resulting in a steeper slope and much higher intercept. The printed coefficients quantify this effect, with The original (without outliers) regression results are closer to the true coefficients, while the model with outliers deviating from true coefficients significantly. This simulation demonstrates how sensitive OLS regression is to outliers and highlights the importance of detecting and addressing outliers in real-world data analysis.</p>
+<p>The plot above shows the regression lines with and without outliers. The presence of just a few extreme outliers shifts the regression line, resulting in a steeper slope and a much higher intercept. The printed coefficients quantify this effect, with the original (without outliers) regression results being closer to the true coefficients, while the model with outliers deviates significantly from the true coefficients. This simulation demonstrates how sensitive OLS regression is to outliers and highlights the importance of detecting and addressing outliers in real-world data analysis.</p>
 
 
 </section>

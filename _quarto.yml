@@ -15,7 +15,7 @@ website:
       - href: projects.qmd
         text: Projects
       - text: Blog
-        href: blogs/
+        href: blogs.qmd
 
     right:
       - icon: github
